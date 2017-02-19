@@ -10,10 +10,18 @@ package com.wetjens.powergrid
  *
  * If a player passes to start an auction, he cannot participate in any subsequent auctions started by other players.
  */
-class AuctionPhase(
+data class AuctionPhase(
+        val biddingOrder: List<Player>,
         val auctioningPlayers: List<Player>,
         val currentAuctioningPlayer: Player = auctioningPlayers.first(),
+        val closedAuctions: List<Auction> = emptyList(),
         private val currentAuction: Auction? = null) : Phase {
+
+    override val currentPlayer: Player
+        get() = when (auctionInProgress) {
+            true -> auction.currentBiddingPlayer
+            else -> currentAuctioningPlayer
+        }
 
     val nextAuctioningPlayer: Player by lazy {
         val nextIndex = (auctioningPlayers.indexOf(currentAuctioningPlayer) + 1) % auctioningPlayers.size
@@ -34,13 +42,26 @@ class AuctionPhase(
      *
      * @param bid must be at minimum the cost of the power plant
      */
-    fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces:PowerPlant?): AuctionPhase {
+    fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant?): AuctionPhase {
         currentAuction == null || throw IllegalStateException("auction in progress")
-        auctioningPlayers.size > 1 || throw IllegalStateException("not enough players for auction")
 
         initialBid >= powerPlant.cost || throw IllegalArgumentException("bid too low")
 
-        return AuctionPhase(auctioningPlayers, currentAuctioningPlayer, Auction(auctioningPlayers, nextAuctioningPlayer, powerPlant, replaces, initialBid))
+        val biddingPlayers = biddingOrder.filter({ player -> auctioningPlayers.contains(player) })
+        // get next player clockwise from current auctioning player
+        val biddingPlayer = biddingPlayers[(biddingPlayers.indexOf(currentAuctioningPlayer) + 1) % biddingPlayers.size]
+
+        val newAuction = Auction(
+                biddingPlayers = biddingPlayers,
+                currentBiddingPlayer = biddingPlayer,
+                powerPlant = powerPlant,
+                replaces = replaces,
+                currentBid = initialBid)
+
+        return when (auctioningPlayers.size) {
+            1 -> copy(auctioningPlayers = emptyList(), closedAuctions = closedAuctions + newAuction)
+            else -> copy(currentAuction = newAuction)
+        }
     }
 
     /**
@@ -50,36 +71,42 @@ class AuctionPhase(
         currentAuction == null || throw IllegalStateException("auction in progress")
 
         val newAuctioningPlayers = auctioningPlayers - currentAuctioningPlayer
-        return AuctionPhase(newAuctioningPlayers, nextAuctioningPlayer, null)
+        return copy(auctioningPlayers = newAuctioningPlayers, currentAuctioningPlayer = nextAuctioningPlayer, currentAuction = null)
     }
 
     /**
      * Raises the bid for the current player that is bidding in the auction.
      */
-    fun raise(bid: Int): AuctionPhase {
-        return AuctionPhase(auctioningPlayers, currentAuctioningPlayer, auction.raise(bid))
+    fun raise(bid: Int, replaces: PowerPlant? = null): AuctionPhase {
+        return copy(currentAuction = auction.raise(bid, replaces))
     }
 
     /**
      * Folds the current player that is bidding in the auction.
      */
-    fun fold(): AuctionPhase {
-        val newAuction = auction.fold()
+    fun passBid(): AuctionPhase {
+        val newAuction = auction.pass()
 
         return when (newAuction.closed) {
-            true -> AuctionPhase(auctioningPlayers - currentAuctioningPlayer, nextAuctioningPlayer, null)
-            else -> AuctionPhase(auctioningPlayers, currentAuctioningPlayer, newAuction)
+            true -> copy(auctioningPlayers = auctioningPlayers - auction.nextBiddingPlayer,
+                    currentAuctioningPlayer = when (auction.nextBiddingPlayer) {
+                        currentAuctioningPlayer -> nextAuctioningPlayer
+                        else -> currentAuctioningPlayer
+                    },
+                    closedAuctions = closedAuctions + auction,
+                    currentAuction = null)
+            else -> copy(currentAuction = newAuction)
         }
     }
 
     /**
      * Auction that is held during the auction phase for a power plant.
      */
-    class Auction(val biddingPlayers: List<Player>,
-                  val currentBiddingPlayer: Player = biddingPlayers.first(),
-                  val powerPlant: PowerPlant,
-                  val replaces: PowerPlant?,
-                  val currentBid: Int) {
+    data class Auction(val biddingPlayers: List<Player>,
+                       val currentBiddingPlayer: Player = biddingPlayers.first(),
+                       val powerPlant: PowerPlant,
+                       val replaces: PowerPlant?,
+                       val currentBid: Int) {
 
         val nextBiddingPlayer: Player by lazy {
             val nextIndex = (biddingPlayers.indexOf(currentBiddingPlayer) + 1) % biddingPlayers.size
@@ -94,19 +121,19 @@ class AuctionPhase(
         /**
          * Raises the bid for the current player that is bidding in the auction.
          */
-        fun raise(bid: Int): Auction {
+        fun raise(bid: Int, replaces: PowerPlant? = null): Auction {
             bid > currentBid || throw IllegalArgumentException("bid too low")
 
-            return Auction(biddingPlayers, nextBiddingPlayer, powerPlant, replaces, bid)
+            return copy(currentBiddingPlayer = nextBiddingPlayer, currentBid = bid, replaces = replaces)
         }
 
         /**
          * Auction that is held during the auction phase for a power plant.
          */
-        fun fold(): Auction {
+        fun pass(): Auction {
             biddingPlayers.size > 1 || throw IllegalStateException("no other players bidding anymore")
 
-            return Auction(biddingPlayers - currentBiddingPlayer, nextBiddingPlayer, powerPlant, replaces, currentBid)
+            return copy(biddingPlayers = biddingPlayers - currentBiddingPlayer, currentBiddingPlayer = nextBiddingPlayer)
         }
     }
 }

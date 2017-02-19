@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Deck from which power plants can be drawn.
  */
-class PowerPlantDeck private constructor(
+data class PowerPlantDeck private constructor(
         /**
          * Set of power plants that the deck is based on.
          */
@@ -97,8 +97,8 @@ class PowerPlantDeck private constructor(
     /**
      * Draws the power plant that is on top.
      */
-    fun draw(): PowerPlantDeck {
-        return PowerPlantDeck(powerPlants, deck.drop(1))
+    operator fun unaryMinus(): PowerPlantDeck {
+        return copy(deck = deck.drop(1))
     }
 
 }

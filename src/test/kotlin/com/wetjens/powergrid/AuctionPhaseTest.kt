@@ -12,7 +12,9 @@ class AuctionPhaseTest {
         val player1 = Player(name = "Player 1")
         val player2 = Player(name = "Player 2")
 
-        var auctionPhase = AuctionPhase(auctioningPlayers = listOf(player1, player2))
+        var auctionPhase = AuctionPhase(
+                biddingOrder = listOf(player1, player2),
+                auctioningPlayers = listOf(player1, player2))
 
         assertEquals(listOf(player1, player2), auctionPhase.auctioningPlayers)
         assertEquals(player1, auctionPhase.currentAuctioningPlayer)
@@ -37,7 +39,7 @@ class AuctionPhaseTest {
         assertEquals(player1, auctionPhase.currentAuctioningPlayer)
         assertEquals(player2, auctionPhase.auction.currentBiddingPlayer)
 
-        auctionPhase = auctionPhase.fold()
+        auctionPhase = auctionPhase.passBid()
 
         assertEquals(false, auctionPhase.auctionInProgress)
         assertEquals(player2, auctionPhase.currentAuctioningPlayer)
@@ -48,7 +50,9 @@ class AuctionPhaseTest {
         val player1 = Player(name = "Player 1")
         val player2 = Player(name = "Player 2")
 
-        var auctionPhase = AuctionPhase(auctioningPlayers = listOf(player1, player2))
+        var auctionPhase = AuctionPhase(
+                biddingOrder = listOf(player1, player2),
+                auctioningPlayers = listOf(player1, player2))
 
         assertEquals(listOf(player1, player2), auctionPhase.auctioningPlayers)
         assertEquals(false, auctionPhase.auctionInProgress)

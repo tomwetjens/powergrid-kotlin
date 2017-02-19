@@ -5,7 +5,7 @@ import java.util.*
 /**
  * Market with power plant offerings.
  */
-class PowerPlantMarket private constructor(
+data class PowerPlantMarket private constructor(
         /**
          * The deck from which replacements are drawn.
          */
@@ -34,8 +34,8 @@ class PowerPlantMarket private constructor(
     /**
      * Takes a power plant from the actual offering and replaces it with one from the deck.
      */
-    fun take(powerPlant: PowerPlant): PowerPlantMarket {
-        powerPlant in actual || throw IllegalStateException("${powerPlant} not in actual")
+    operator fun minus(powerPlant: PowerPlant): PowerPlantMarket {
+        powerPlant in actual || throw IllegalArgumentException("$powerPlant not in actual")
 
         val replacement = deck.onTop
         val newActualAndFuture = (actual - powerPlant + future + replacement)
@@ -45,15 +45,16 @@ class PowerPlantMarket private constructor(
         val newActual = newActualAndFuture.take(Math.min(actual.size, newActualAndFuture.size))
         val newFuture = newActualAndFuture.takeLast(newActualAndFuture.size - newActual.size)
 
-        val newDeck = deck.draw()
+        val newDeck = -deck
 
-        return PowerPlantMarket(newDeck, newActual, newFuture)
+        return copy(deck = newDeck, actual = newActual, future = newFuture)
     }
 
     /**
      * Moves everything in the future offering to the actual offering.
      */
     fun onlyActual(): PowerPlantMarket {
-        return PowerPlantMarket(deck, actual + future, emptyList())
+        return copy(actual = actual + future, future = emptyList())
     }
+
 }
