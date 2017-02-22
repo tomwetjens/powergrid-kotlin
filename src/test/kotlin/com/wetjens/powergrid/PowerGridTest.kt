@@ -518,7 +518,79 @@ class PowerGridTest {
         assertEquals(16, powerGrid.resourceMarkets[ResourceType.COAL].available)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
     }
-    // TODO buyResourceBalanceTooLow
-    // TODO buyResourceNotAvailable
-    // TODO buyResourceMaxStorageExceeded
+
+    @Test
+    fun buyResourcesBalanceTooLow() {
+        var powerGrid = PowerGrid(random, players)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+
+        assertEquals(player3, powerGrid.currentPlayer)
+        assertEquals(47, powerGrid.playerStates[player3]!!.balance)
+
+        // lose some money
+        powerGrid = powerGrid.copy(playerStates = powerGrid.playerStates + Pair(player3, powerGrid.playerStates[player3]!!.pay(27)))
+        assertEquals(20, powerGrid.playerStates[player3]!!.balance)
+
+        try {
+            powerGrid.buyResources(ResourceType.OIL, 6) // costs 21
+            fail("must throw because balance too low")
+        } catch (e: IllegalArgumentException) {
+            // expected
+            assertEquals("balance too low", e.message)
+        }
+    }
+
+    @Test
+    fun buyResourcesNotAvailable() {
+        var powerGrid = PowerGrid(random, players)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+
+        assertEquals(2, powerGrid.resourceMarkets[ResourceType.URANIUM].available)
+
+        try {
+            powerGrid.buyResources(ResourceType.URANIUM, 3)
+            fail("must throw because not enough available")
+        } catch (e: IllegalArgumentException) {
+            // expected
+            assertEquals("not enough available", e.message)
+        }
+    }
+
+    @Test
+    fun buyResourcesMaxStorageExceeded() {
+        var powerGrid = PowerGrid(random, players)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+
+        // should be able to store twice the amount it requires
+        powerGrid = powerGrid.buyResources(ResourceType.OIL, 4)
+
+        try {
+            powerGrid.buyResources(ResourceType.OIL, 1)
+            fail("must throw because max storage exceeded")
+        } catch (e: IllegalArgumentException) {
+            // expected
+            assertEquals("max storage exceeded", e.message)
+        }
+    }
 }
