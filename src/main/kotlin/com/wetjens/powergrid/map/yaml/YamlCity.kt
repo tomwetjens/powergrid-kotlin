@@ -1,0 +1,21 @@
+package com.wetjens.powergrid.map.yaml
+
+import com.wetjens.powergrid.map.City
+
+class YamlCity : City {
+
+    private object Constants {
+        val emptyArea = YamlArea()
+    }
+
+    // Need to be var because deserialized from YAML
+    override var name: String = ""
+    override var area: YamlArea = Constants.emptyArea
+    override var connections: MutableSet<YamlConnection> = mutableSetOf()
+
+    override fun toString(): String {
+        return "$name"
+    }
+
+
+}

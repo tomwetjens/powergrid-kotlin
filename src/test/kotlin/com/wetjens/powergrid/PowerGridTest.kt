@@ -1,5 +1,6 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.map.yaml.YamlNetworkMap
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals
@@ -18,7 +19,7 @@ class PowerGridTest {
     val players = listOf(player1, player2, player3)
 
     val map = PowerGridTest::class.java.getResourceAsStream("/maps/germany.yaml")
-            .use { inputStream -> NetworkMap.load(inputStream) }
+            .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
     @Test
     fun preparationFirstStep() {
@@ -597,5 +598,26 @@ class PowerGridTest {
             // expected
             assertEquals("max storage exceeded", e.message)
         }
+    }
+
+    @Test
+    fun buildChooseStartingCity() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player3, powerGrid.currentPlayer)
+
+
     }
 }

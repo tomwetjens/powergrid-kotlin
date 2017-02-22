@@ -1,5 +1,6 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.map.NetworkMap
 import java.util.*
 
 data class PowerGrid constructor(

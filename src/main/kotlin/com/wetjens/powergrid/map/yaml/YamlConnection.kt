@@ -1,0 +1,29 @@
+package com.wetjens.powergrid.map.yaml
+
+import com.wetjens.powergrid.map.Connection
+
+class YamlConnection() : Connection {
+
+    private object Constants {
+        val emptyCity = YamlCity()
+    }
+
+    // Need to be var because deserialized from YAML
+    override var from: YamlCity = Constants.emptyCity
+    override var to: YamlCity = Constants.emptyCity
+    override var cost: Int = 0
+
+    constructor(from: YamlCity, to: YamlCity, cost: Int) : this() {
+        this.from = from
+        this.to = to
+        this.cost = cost
+    }
+
+    val inverse: YamlConnection by lazy {
+        YamlConnection(from = to, to = from, cost = cost)
+    }
+
+    override fun toString(): String {
+        return "$from->($cost)->$to"
+    }
+}
