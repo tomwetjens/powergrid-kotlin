@@ -4,6 +4,7 @@ import com.wetjens.powergrid.map.Area
 
 class YamlArea : Area {
 
+    // Need to be var because deserialized from YAML
     override var name: String = ""
     override var cities: MutableSet<YamlCity> = mutableSetOf()
 

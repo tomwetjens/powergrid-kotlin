@@ -18,12 +18,12 @@ class YamlNetworkMap : NetworkMap {
             val map = Yaml().loadAs<YamlNetworkMap>(inputStream, YamlNetworkMap::class.java)
 
             map.connections.forEach { connection ->
-                connection.from!!.connections.add(connection)
-                connection.to!!.connections.add(connection.inverse)
+                connection.from.connections.add(connection)
+                connection.to.connections.add(connection.inverse)
             }
 
             map.cities.forEach { city ->
-                city.area!!.cities.add(city)
+                city.area.cities.add(city)
             }
 
             return map
