@@ -17,130 +17,130 @@ areas:
 cities:
 - &flensburg
   name: 'Flensburg'
-  area: &nw
+  area: *nw
 - &kiel
   name: 'Kiel'
-  area: &nw
+  area: *nw
 - &hamburg
   name: 'Hamburg'
-  area: &nw
+  area: *nw
 - &cukhaven
   name: 'Cukhaven'
-  area: &nw
+  area: *nw
 - &bremen
   name: 'Bremen'
-  area: &nw
+  area: *nw
 - &hannover
   name: 'Hannover'
-  area: &nw
+  area: *nw
 - &wilhelmshaven
   name: 'Wilhelmshaven'
-  area: &nw
+  area: *nw
 - &osnabrueck
   name: 'Osnabrück'
-  area: &w
+  area: *w
 - &muenster
   name: 'Münster'
-  area: &w
+  area: *w
 - &dortmund
   name: 'Dortmund'
-  area: &w
+  area: *w
 - &essen
   name: 'Essen'
-  area: &w
+  area: *w
 - &duisburg
   name: 'Duisburg'
-  area: &w
+  area: *w
 - &duesseldorf
   name: 'Düsseldorf'
-  area: &w
+  area: *w
 - &koeln
   name: 'Köln'
-  area: &sw
+  area: *sw
 - &aachen
   name: 'Aachen'
-  area: &sw
+  area: *sw
 - &kassel
   name: 'Kassel'
-  area: &w
+  area: *w
 - &frankfurtm
   name: 'FrankmurtM'
-  area: &sw
+  area: *sw
 - &fulda
   name: 'Fulda'
-  area: &e
+  area: *e
 - &wiesbaden
   name: 'Wiesbaden'
-  area: &sw
+  area: *sw
 - &trier
   name: 'Trier'
-  area: &sw
+  area: *sw
 - &mannheim
   name: 'Mannheim'
-  area: &sw
+  area: *sw
 - &saarbruecken
   name: 'Saarbrücken'
-  area: &sw
+  area: *sw
 - &stuttgart
   name: 'Stuttgart'
-  area: &se
+  area: *se
 - &freiburg
   name: 'Freiburg'
-  area: &se
+  area: *se
 - &konstanz
   name: 'Konstanz'
-  area: &se
+  area: *se
 - &augsburg
   name: 'Augsburg'
-  area: &se
+  area: *se
 - &wuerzburg
   name: 'Würzburg'
-  area: &e
+  area: *e
 - &regensburg
   name: 'Regensburg'
-  area: &se
+  area: *se
 - &passau
   name: 'Passau'
-  area: &se
+  area: *se
 - &nuernberg
   name: 'Nürnberg'
-  area: &e
+  area: *e
 - &erfurt
   name: 'Erfurt'
-  area: &e
+  area: *e
 - &dresden
   name: 'Dresden'
-  area: &e
+  area: *e
 - &halle
   name: 'Halle'
-  area: &e
+  area: *e
 - &leipzig
   name: 'Leipzig'
-  area: &e
+  area: *e
 - &frankfurto
   name: 'FrankfurtO'
-  area: &ne
+  area: *ne
 - &magdeburg
   name: 'Magdeburg'
-  area: &ne
+  area: *ne
 - &berlin
   name: 'Berlin'
-  area: &ne
+  area: *ne
 - &schwerin
   name: 'Schwerin'
-  area: &ne
+  area: *ne
 - &lubeck
   name: 'Lubeck'
-  area: &ne
+  area: *ne
 - &rostock
   name: 'Rostock'
-  area: &ne
+  area: *ne
 - &torgelow
   name: 'Torgelow'
-  area: &ne
+  area: *ne
 - &muenchen
   name: 'München'
-  area: &se
+  area: *se
 
 connections:
 - { from: *flensburg, to: *kiel, cost: 4}

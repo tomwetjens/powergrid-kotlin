@@ -11,6 +11,8 @@ class NetworkMapTest {
                 .use { inputStream -> NetworkMap.load(inputStream) }
 
         assertEquals(6, map.areas.size)
+        for (i in 0..5) assertEquals(7, map.areas[i].cities.size)
+
         assertEquals(42, map.cities.size)
         assertEquals(81, map.connections.size)
     }

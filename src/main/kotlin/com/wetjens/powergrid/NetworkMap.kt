@@ -19,6 +19,10 @@ class NetworkMap {
                 connection.to!!.connections.add(connection.inverse)
             }
 
+            map.cities.forEach { city ->
+                city.area!!.cities.add(city)
+            }
+
             return map
         }
     }
