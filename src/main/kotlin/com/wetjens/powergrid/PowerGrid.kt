@@ -3,6 +3,7 @@ package com.wetjens.powergrid
 import java.util.*
 
 data class PowerGrid constructor(
+        val map: NetworkMap,
         val step: Int = 1,
         val round: Int = 1,
         val phase: Phase,
@@ -16,12 +17,19 @@ data class PowerGrid constructor(
     /**
      * Initializes a game of Power Grid.
      */
-    constructor(random: Random, players: List<Player>) : this(
+    constructor(random: Random,
+                players: List<Player>,
+                map: NetworkMap) : this(
+            map = map,
             players = players,
             playerOrder = players.shuffle(random),
             powerPlantMarket = PowerPlantMarket(random, players.size))
 
-    private constructor(players: List<Player>, playerOrder: List<Player>, powerPlantMarket: PowerPlantMarket) : this(
+    private constructor(map: NetworkMap,
+                        players: List<Player>,
+                        playerOrder: List<Player>,
+                        powerPlantMarket: PowerPlantMarket) : this(
+            map = map,
             phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder),
             players = players,
             playerOrder = playerOrder,
@@ -162,7 +170,7 @@ data class PowerGrid constructor(
     fun passBuyResources(): PowerGrid {
         if (phase is BuyResourcesPhase) {
             return when (phase.buyingPlayers.size) {
-                1 -> goToBuildingPhase()
+                1 -> goToBuildPhase()
                 else -> copy(phase = phase.pass())
             }
         } else {
@@ -170,9 +178,8 @@ data class PowerGrid constructor(
         }
     }
 
-    private fun goToBuildingPhase(): PowerGrid {
-        // TODO
-        return copy()
+    private fun goToBuildPhase(): PowerGrid {
+        return copy(phase = BuildPhase(buildingPlayers = playerOrder.reversed(), map = map))
     }
 
 }

@@ -17,23 +17,26 @@ class PowerGridTest {
 
     val players = listOf(player1, player2, player3)
 
+    val map = PowerGridTest::class.java.getResourceAsStream("/maps/germany.yaml")
+            .use { inputStream -> NetworkMap.load(inputStream) }
+
     @Test
     fun preparationFirstStep() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(1, powerGrid.step)
     }
 
     @Test
     fun preparationFirstRound() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(1, powerGrid.round)
     }
 
     @Test
     fun preparationInitialBalance() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(50, powerGrid.playerStates[player1]!!.balance)
         assertEquals(50, powerGrid.playerStates[player2]!!.balance)
@@ -41,14 +44,14 @@ class PowerGridTest {
 
     @Test
     fun preparationInitialRandomPlayerOrder() {
-        var powerGrid = PowerGrid(random, listOf(player1, player2, player3))
+        var powerGrid = PowerGrid(random = random, players = listOf(player1, player2, player3), map = map)
 
         assertEquals(listOf(player3, player2, player1), powerGrid.playerOrder)
     }
 
     @Test
     fun preparationInitialPowerPlantMarket() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(listOf(3, 4, 5, 6), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
         assertEquals(listOf(7, 8, 9, 10), powerGrid.powerPlantMarket.future.map(PowerPlant::cost))
@@ -56,28 +59,28 @@ class PowerGridTest {
 
     @Test
     fun preparationInitialDeck() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(13, powerGrid.powerPlantMarket.deck.onTop?.cost)
     }
 
     @Test
     fun preparationStartInAuctionPhase() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertTrue(powerGrid.phase is AuctionPhase)
     }
 
     @Test
     fun preparationStartWithFirstPlayer() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
     }
 
     @Test
     fun preparationInitialResourceMarkets() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].capacity)
         assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].available)
@@ -94,7 +97,7 @@ class PowerGridTest {
 
     @Test
     fun auctionLeadingPlayerShouldStartAuctionPhase() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
     }
@@ -104,7 +107,7 @@ class PowerGridTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun auctionOnlyActualMarket() {
-        val powerGrid = PowerGrid(random, players)
+        val powerGrid = PowerGrid(random = random, players = players, map = map)
 
         val powerPlant = powerGrid.powerPlantMarket.future[0]
         try {
@@ -120,7 +123,7 @@ class PowerGridTest {
      */
     @Test(expected = IllegalArgumentException::class)
     fun auctionInitialBidMustBeAtLeastCost() {
-        val powerGrid = PowerGrid(random, players)
+        val powerGrid = PowerGrid(random = random, players = players, map = map)
 
         try {
             powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 2)
@@ -135,7 +138,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionImmediatelyReplacePowerPlantAfterStartingAuction() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         val powerPlant3 = powerGrid.powerPlantMarket.actual[0]
         powerGrid = powerGrid.startAuction(powerPlant3, 3)
@@ -155,7 +158,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionBiddingInClockwiseOrder() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
 
@@ -197,7 +200,7 @@ class PowerGridTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun auctionCannotStartAuctionIfBalanceTooLow() {
-        val powerGrid = PowerGrid(random, players)
+        val powerGrid = PowerGrid(random = random, players = players, map = map)
 
         try {
             powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 51)
@@ -209,7 +212,7 @@ class PowerGridTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun auctionCannotBidIfBalanceTooLow() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
 
@@ -226,7 +229,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionPlayerThatBuysCannotBidAgainInSameRound() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
         powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
@@ -262,7 +265,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionCannotPassAuctionInFirstRound() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
         try {
@@ -294,7 +297,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionPlayerThatPassesAuctionCannotBidInSameRound() {
-        var powerGrid = PowerGrid(random, players).copy(round = 2)
+        var powerGrid = PowerGrid(random = random, players = players, map = map).copy(round = 2)
 
         assertEquals(player3, powerGrid.currentPlayer)
         powerGrid = powerGrid.passAuction()
@@ -315,7 +318,7 @@ class PowerGridTest {
 
     @Test
     fun auctionAuctioningPlayerWinningBidNextPlayerBecomesAuctioningPlayer() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
         // leading player buys
@@ -338,7 +341,7 @@ class PowerGridTest {
 
     @Test
     fun auctionAuctioningPlayerNotWinningBidRemainsAuctioningPlayer() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
         // other player buys it
@@ -366,7 +369,7 @@ class PowerGridTest {
      */
     @Test
     fun auctionRedeterminePlayerOrderFirstRound() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(listOf(player3, player2, player1), powerGrid.playerOrder)
 
@@ -385,7 +388,7 @@ class PowerGridTest {
 
     @Test
     fun auctionStartAuctionCanHaveMaxThreePowerPlants() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         // given a player has 3 power plants
         powerGrid = powerGrid.copy(playerStates = mapOf(
@@ -418,7 +421,7 @@ class PowerGridTest {
 
     @Test
     fun auctionBidCanHaveMaxThreePowerPlants() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         // given a player has 3 power plants
         powerGrid = powerGrid.copy(playerStates = mapOf(
@@ -455,7 +458,7 @@ class PowerGridTest {
     @Test
     fun auctionAllPlayersPassAuctionThenRemoveCheapestPowerPlant() {
         // given game in round >1
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
                 .copy(round = 2)
         // but unrealistic, but okay, just to prove this rule
         assertEquals(listOf(3, 4, 5, 6), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
@@ -474,7 +477,7 @@ class PowerGridTest {
 
     @Test
     fun buyResourcesStartInReversePlayerOrder() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
                 .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
@@ -490,7 +493,7 @@ class PowerGridTest {
 
     @Test
     fun buyResources() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
                 .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
@@ -517,11 +520,13 @@ class PowerGridTest {
 
         assertEquals(16, powerGrid.resourceMarkets[ResourceType.COAL].available)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
+
+        assertTrue(powerGrid.phase is BuildPhase)
     }
 
     @Test
     fun buyResourcesBalanceTooLow() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
                 .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
@@ -549,7 +554,7 @@ class PowerGridTest {
 
     @Test
     fun buyResourcesNotAvailable() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
                 .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
@@ -572,7 +577,7 @@ class PowerGridTest {
 
     @Test
     fun buyResourcesMaxStorageExceeded() {
-        var powerGrid = PowerGrid(random, players)
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
                 .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
