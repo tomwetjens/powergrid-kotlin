@@ -1,90 +1,146 @@
 ---
 
+areas:
+- &ne
+  name: 'NE'
+- &nw
+  name: 'NW'
+- &e
+  name: 'E'
+- &w
+  name: 'W'
+- &sw
+  name: 'SW'
+- &se
+  name: 'SE'
+
 cities:
 - &flensburg
   name: 'Flensburg'
+  area: &nw
 - &kiel
   name: 'Kiel'
+  area: &nw
 - &hamburg
   name: 'Hamburg'
+  area: &nw
 - &cukhaven
   name: 'Cukhaven'
+  area: &nw
 - &bremen
   name: 'Bremen'
+  area: &nw
 - &hannover
   name: 'Hannover'
+  area: &nw
 - &wilhelmshaven
   name: 'Wilhelmshaven'
+  area: &nw
 - &osnabrueck
   name: 'Osnabrück'
+  area: &w
 - &muenster
   name: 'Münster'
+  area: &w
 - &dortmund
   name: 'Dortmund'
+  area: &w
 - &essen
   name: 'Essen'
+  area: &w
 - &duisburg
   name: 'Duisburg'
+  area: &w
 - &duesseldorf
   name: 'Düsseldorf'
+  area: &w
 - &koeln
   name: 'Köln'
+  area: &sw
 - &aachen
   name: 'Aachen'
+  area: &sw
 - &kassel
   name: 'Kassel'
+  area: &w
 - &frankfurtm
   name: 'FrankmurtM'
+  area: &sw
 - &fulda
   name: 'Fulda'
+  area: &e
 - &wiesbaden
   name: 'Wiesbaden'
+  area: &sw
 - &trier
   name: 'Trier'
+  area: &sw
 - &mannheim
   name: 'Mannheim'
+  area: &sw
 - &saarbruecken
   name: 'Saarbrücken'
+  area: &sw
 - &stuttgart
   name: 'Stuttgart'
+  area: &se
 - &freiburg
   name: 'Freiburg'
+  area: &se
 - &konstanz
   name: 'Konstanz'
+  area: &se
 - &augsburg
   name: 'Augsburg'
+  area: &se
 - &wuerzburg
   name: 'Würzburg'
+  area: &e
 - &regensburg
   name: 'Regensburg'
+  area: &se
 - &passau
   name: 'Passau'
+  area: &se
 - &nuernberg
   name: 'Nürnberg'
+  area: &e
 - &erfurt
   name: 'Erfurt'
+  area: &e
 - &dresden
   name: 'Dresden'
+  area: &e
 - &halle
   name: 'Halle'
+  area: &e
 - &leipzig
   name: 'Leipzig'
+  area: &e
 - &frankfurto
   name: 'FrankfurtO'
+  area: &ne
 - &magdeburg
   name: 'Magdeburg'
+  area: &ne
 - &berlin
   name: 'Berlin'
+  area: &ne
 - &schwerin
   name: 'Schwerin'
+  area: &ne
 - &lubeck
   name: 'Lubeck'
+  area: &ne
 - &rostock
   name: 'Rostock'
+  area: &ne
 - &torgelow
   name: 'Torgelow'
+  area: &ne
 - &muenchen
   name: 'München'
+  area: &se
 
 connections:
 - { from: *flensburg, to: *kiel, cost: 4}

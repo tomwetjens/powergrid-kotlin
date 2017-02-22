@@ -5,6 +5,7 @@ import java.io.InputStream
 
 class NetworkMap {
 
+    var areas: List<Area> = mutableListOf()
     var cities: List<City> = mutableListOf()
     var connections: List<Connection> = mutableListOf()
 

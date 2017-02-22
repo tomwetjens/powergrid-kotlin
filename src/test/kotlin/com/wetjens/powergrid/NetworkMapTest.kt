@@ -10,6 +10,7 @@ class NetworkMapTest {
         val map = NetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
                 .use { inputStream -> NetworkMap.load(inputStream) }
 
+        assertEquals(6, map.areas.size)
         assertEquals(42, map.cities.size)
         assertEquals(81, map.connections.size)
     }
