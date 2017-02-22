@@ -4,6 +4,9 @@ import com.wetjens.powergrid.map.NetworkMap
 import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
 
+/**
+ * [NetworkMap] that can be loaded from a YAML file.
+ */
 class YamlNetworkMap : NetworkMap {
 
     // Need to be var because deserialized from YAML
@@ -14,7 +17,10 @@ class YamlNetworkMap : NetworkMap {
 
     companion object Factory {
 
-        fun load(inputStream: InputStream): YamlNetworkMap {
+        /**
+         * Loads a [NetworkMap] from a YAML file.
+         */
+        fun load(inputStream: InputStream): NetworkMap {
             val map = Yaml().loadAs<YamlNetworkMap>(inputStream, YamlNetworkMap::class.java)
 
             map.connections.forEach { connection ->

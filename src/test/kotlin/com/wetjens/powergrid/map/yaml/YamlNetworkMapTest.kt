@@ -1,5 +1,6 @@
 package com.wetjens.powergrid.map.yaml
 
+import com.wetjens.powergrid.map.City
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -14,7 +15,7 @@ class YamlNetworkMapTest {
         map.areas.forEach { area -> assertEquals(7, area.cities.size) }
 
         assertEquals(42, map.cities.size)
-        assertEquals(81, map.connections.size)
+        assertEquals(162, map.cities.flatMap(City::connections).size)
     }
 
 }
