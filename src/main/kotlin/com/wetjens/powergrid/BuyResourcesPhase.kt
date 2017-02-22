@@ -1,5 +1,9 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.resource.Resource
+import com.wetjens.powergrid.resource.ResourceMarkets
+import com.wetjens.powergrid.resource.ResourceType
+
 /**
  * Buy resources phase in a game of Power Grid.
  */

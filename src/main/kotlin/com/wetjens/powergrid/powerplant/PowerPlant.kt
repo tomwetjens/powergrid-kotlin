@@ -1,4 +1,6 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.powerplant
+
+import com.wetjens.powergrid.resource.ResourceType
 
 data class PowerPlant(
         val cost: Int,

@@ -1,6 +1,8 @@
 package com.wetjens.powergrid
 
 import com.wetjens.powergrid.map.yaml.YamlNetworkMap
+import com.wetjens.powergrid.powerplant.PowerPlant
+import com.wetjens.powergrid.resource.ResourceType
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals

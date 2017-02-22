@@ -1,4 +1,4 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.powerplant
 
 import java.util.*
 

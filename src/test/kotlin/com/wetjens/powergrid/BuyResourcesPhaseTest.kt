@@ -1,5 +1,7 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.resource.ResourceMarkets
+import com.wetjens.powergrid.resource.ResourceType
 import org.junit.Test
 import java.util.*
 import kotlin.test.assertEquals

@@ -1,9 +1,7 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.resource
 
 import org.junit.Test
-import java.util.*
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class ResourceMarketTest {
 

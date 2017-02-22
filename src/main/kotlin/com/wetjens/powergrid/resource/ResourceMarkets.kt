@@ -1,4 +1,4 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.resource
 
 data class ResourceMarkets(val markets: Map<ResourceType, ResourceMarket> = mapOf(
         Pair(ResourceType.COAL, ResourceMarket.default() + 24),

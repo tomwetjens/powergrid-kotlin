@@ -1,4 +1,4 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.resource
 
 enum class ResourceType {
     COAL,

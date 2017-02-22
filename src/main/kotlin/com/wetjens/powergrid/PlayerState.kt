@@ -1,5 +1,7 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.powerplant.PowerPlant
+import com.wetjens.powergrid.resource.ResourceType
 import java.util.*
 
 data class PlayerState(val balance: Int = 50,

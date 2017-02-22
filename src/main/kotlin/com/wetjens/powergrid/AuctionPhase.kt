@@ -1,5 +1,7 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.powerplant.PowerPlant
+
 /**
  * Auction phase in a game of Power Grid.
  *

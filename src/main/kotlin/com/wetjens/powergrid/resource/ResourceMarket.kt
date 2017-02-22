@@ -1,4 +1,4 @@
-package com.wetjens.powergrid
+package com.wetjens.powergrid.resource
 
 data class ResourceMarket(val spaces: List<Space>) {
 
