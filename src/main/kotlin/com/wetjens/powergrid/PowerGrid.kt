@@ -145,17 +145,21 @@ data class PowerGrid constructor(
             val playerState = playerStates[phase.currentBuyingPlayer]!!
             playerState.balance >= cost || throw IllegalArgumentException("balance too low")
 
+            val newPlayerState = playerState
+                    .pay(cost)
+                    .addResource(type, amount)
+
             val newBuyResourcesPhase = phase.buy(type, amount)
 
             return copy(phase = newBuyResourcesPhase,
                     resourceMarkets = newBuyResourcesPhase.resourceMarkets,
-                    playerStates = playerStates + Pair(phase.currentBuyingPlayer, playerState.pay(cost)))
+                    playerStates = playerStates + Pair(phase.currentBuyingPlayer, newPlayerState))
         } else {
             throw IllegalStateException("not in buy resources phase")
         }
     }
 
-    fun passBuyResources():PowerGrid {
+    fun passBuyResources(): PowerGrid {
         if (phase is BuyResourcesPhase) {
             return when (phase.buyingPlayers.size) {
                 1 -> goToBuildingPhase()
