@@ -1,5 +1,6 @@
 package com.wetjens.powergrid
 
+import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.NetworkMap
 import com.wetjens.powergrid.powerplant.PowerPlant
 import com.wetjens.powergrid.powerplant.PowerPlantMarket
@@ -9,6 +10,7 @@ import java.util.*
 
 data class PowerGrid constructor(
         val map: NetworkMap,
+        val cityStates: Map<City, CityState> = map.cities.associate { city -> Pair(city, CityState()) },
         val step: Int = 1,
         val round: Int = 1,
         val phase: Phase,
@@ -183,8 +185,33 @@ data class PowerGrid constructor(
         }
     }
 
+    private fun goToBureaucracyPhase(): PowerGrid {
+        return copy(phase = BureaucracyPhase(powerGrid = this, players = playerOrder, nextPhase = { powerGrid ->
+            powerGrid.redeterminePlayerOrder()
+                    .copy(phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder))
+        }))
+    }
+
     private fun goToBuildPhase(): PowerGrid {
-        return copy(phase = BuildPhase(buildingPlayers = playerOrder.reversed(), map = map))
+        return copy(phase = BuildPhase(powerGrid = this,
+                buildingPlayers = playerOrder.reversed(),
+                nextPhase = { powerGrid -> powerGrid.goToBureaucracyPhase() }))
+    }
+
+    fun connectCity(city: City): PowerGrid {
+        if (phase is BuildPhase) {
+            return phase.connectCity(city)
+        } else {
+            throw IllegalStateException("not in build phase")
+        }
+    }
+
+    fun passConnectCity(): PowerGrid {
+        if (phase is BuildPhase) {
+            return phase.passConnectCity()
+        } else {
+            throw IllegalStateException("not in build phase")
+        }
     }
 
 }

@@ -101,7 +101,7 @@ data class PlayerState(val balance: Int = 50,
     fun addResource(type: ResourceType, amount: Int): PlayerState {
         amount <= storageAvailable[type]!! || throw IllegalArgumentException("max storage exceeded")
 
-        return copy(resources = resources + Pair(type, resources[type]?:0 + amount))
+        return copy(resources = resources + Pair(type, resources[type] ?: 0 + amount))
     }
 
 }

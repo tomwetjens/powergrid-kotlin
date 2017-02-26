@@ -23,6 +23,10 @@ class PowerGridTest {
     val map = PowerGridTest::class.java.getResourceAsStream("/maps/germany.yaml")
             .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
+    val duesseldorf = map.cities.find { city -> city.name == "Düsseldorf" }!!
+    val essen = map.cities.find { city -> city.name == "Essen" }!!
+    val muenster = map.cities.find { city -> city.name == "Münster" }!!
+
     @Test
     fun preparationFirstStep() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
@@ -603,7 +607,7 @@ class PowerGridTest {
     }
 
     @Test
-    fun buildChooseStartingCity() {
+    fun buildConnectStartingCity() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
@@ -620,6 +624,120 @@ class PowerGridTest {
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
 
+        powerGrid = powerGrid.connectCity(duesseldorf)
+                .passConnectCity()
 
+        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(37, powerGrid.playerStates[player3]!!.balance)
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player2, powerGrid.currentPlayer)
+
+        powerGrid = powerGrid.connectCity(essen)
+                .passConnectCity()
+
+        assertEquals(listOf(player2), powerGrid.cityStates[essen]!!.connectedBy)
+        assertEquals(36, powerGrid.playerStates[player2]!!.balance)
+
+        powerGrid = powerGrid.connectCity(muenster)
+                .passConnectCity()
+
+        assertEquals(listOf(player1), powerGrid.cityStates[muenster]!!.connectedBy)
+        assertEquals(35, powerGrid.playerStates[player1]!!.balance)
+    }
+
+    @Test
+    fun buildCannotConnectCityAlreadyConnectedInSameStep() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player3, powerGrid.currentPlayer)
+
+        powerGrid = powerGrid.connectCity(duesseldorf)
+                .passConnectCity()
+
+        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(37, powerGrid.playerStates[player3]!!.balance)
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player2, powerGrid.currentPlayer)
+
+        try {
+            powerGrid.connectCity(duesseldorf)
+            fail("should throw because city reached max connections")
+        } catch (e: IllegalStateException) {
+            assertEquals("reached max connections", e.message)
+        }
+    }
+
+    @Test
+    fun buildConnectCityMustBeConnectedToAlreadyConnectedCities() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player3, powerGrid.currentPlayer)
+
+        powerGrid = powerGrid.connectCity(duesseldorf)
+
+        try {
+            powerGrid.connectCity(muenster)
+            fail("should throw because city is not reachable")
+        } catch (e:IllegalArgumentException) {
+            assertEquals("not reachable", e.message)
+        }
+    }
+
+    @Test
+    fun buildConnectMultipleCities() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player3, powerGrid.currentPlayer)
+
+        powerGrid = powerGrid.connectCity(duesseldorf)
+                .connectCity(essen)
+                .connectCity(muenster)
+                .passConnectCity()
+
+        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(listOf(player3), powerGrid.cityStates[essen]!!.connectedBy)
+        assertEquals(listOf(player3), powerGrid.cityStates[muenster]!!.connectedBy)
+        assertEquals(15, powerGrid.playerStates[player3]!!.balance)
+
+        assertTrue(powerGrid.phase is BuildPhase)
+        assertEquals(player2, powerGrid.currentPlayer)
     }
 }
