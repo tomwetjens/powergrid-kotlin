@@ -18,7 +18,7 @@ class RestrictedNetworkMapTest {
 
         val map = RestrictedNetworkMap(base, setOf(ne, nw))
 
-        assertEquals(setOf(ne, nw), map.areas)
+        assertEquals(2, map.areas.size)
         assertEquals(14, map.cities.size)
 
         // city in one playable area
@@ -29,7 +29,7 @@ class RestrictedNetworkMapTest {
         // they should still be connected
         assertTrue(magdeburg.connections.any { connection -> connection.to == hannover })
 
-        // should not be connected any more to city outside playable area
+        // should not be connected any more to cities outside playable area
         assertEquals(3, magdeburg.connections.size)
     }
 
@@ -43,6 +43,25 @@ class RestrictedNetworkMapTest {
 
         try {
             RestrictedNetworkMap(base, setOf(ne, se))
+            fail("should throw because not all areas are reachable")
+        } catch (e: IllegalArgumentException) {
+            assertEquals("all areas must be reachable", e.message)
+        }
+    }
+
+    @Test
+    fun areasUnreachableSplitClusters() {
+        val base = RestrictedNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+                .use { inputStream -> YamlNetworkMap.load(inputStream) }
+
+        val ne = base.areas.find { area -> area.name == "NE" }!!
+        val nw = base.areas.find { area -> area.name == "NW" }!!
+
+        val se = base.areas.find { area -> area.name == "SE" }!!
+        val sw = base.areas.find { area -> area.name == "SW" }!!
+
+        try {
+            RestrictedNetworkMap(base, setOf(ne, nw, sw, se))
             fail("should throw because not all areas are reachable")
         } catch (e: IllegalArgumentException) {
             assertEquals("all areas must be reachable", e.message)

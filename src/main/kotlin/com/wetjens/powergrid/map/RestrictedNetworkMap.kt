@@ -6,60 +6,88 @@ package com.wetjens.powergrid.map
  */
 class RestrictedNetworkMap(
         base: NetworkMap,
-        private val playableAreas: Set<Area>) : NetworkMap by base {
+        areas: Set<Area>) : NetworkMap by base {
 
-    private class PlayableCity(val base: City) : City by base {
+    private class PlayableArea(val base: Area) : Area {
 
-        var playableConnections: MutableSet<PlayableConnection> = mutableSetOf()
+        val playableCities: MutableSet<PlayableCity> = mutableSetOf()
 
-        override val connections: Set<Connection>
-            get() = playableConnections
+        override val name: String = base.name
+
+        override val cities: Set<City> = playableCities
+
+        override fun toString(): String = base.toString()
+
     }
 
-    private class PlayableConnection(override val from: PlayableCity,
-                                     override val to: PlayableCity,
-                                     override val cost: Int) : Connection
+    private class PlayableCity(val base: City,
+                               override val area: PlayableArea) : City {
+
+        val playableConnections: MutableSet<PlayableConnection> = mutableSetOf()
+
+        override val name: String = base.name
+
+        override val connections: Set<Connection> = playableConnections
+
+        override fun toString(): String = base.toString()
+
+    }
+
+    private class PlayableConnection(val base: Connection,
+                                     override val from: PlayableCity,
+                                     override val to: PlayableCity) : Connection {
+
+        override val cost: Int = base.cost
+
+        override fun toString(): String = base.toString()
+    }
+
+    private val playableAreas: Set<PlayableArea>
+    private val playableCities: Set<PlayableCity>
 
     init {
-        base.areas.containsAll(playableAreas) || throw IllegalArgumentException("base map must contain areas")
+        base.areas.containsAll(areas) || throw IllegalArgumentException("base map must contain areas")
+
+        val areasByBase = areas.associate { area -> Pair(area, PlayableArea(area)) }
+        playableAreas = areasByBase.values.toSet()
+
+        val citiesByBase = areas
+                .flatMap(Area::cities)
+                .associate({ city ->
+                    val playableArea = areasByBase[city.area]!!
+                    val playableCity = PlayableCity(city, playableArea)
+
+                    playableArea.playableCities.add(playableCity)
+
+                    Pair(city, playableCity)
+                })
+
+        // wrap the connections as well since they must not point to an non-playable city
+        citiesByBase.values.forEach({ playableCity -> restrictConnections(playableCity, citiesByBase) })
+        playableCities = citiesByBase.values.toSet()
 
         // check that areas are connected
-        playableAreas.all({ area -> isReachable(area, playableAreas - area) }) || throw IllegalArgumentException("all areas must be reachable")
+        playableAreas.all({ playableArea -> isReachable(playableArea, playableAreas - playableArea) })
+                || throw IllegalArgumentException("all areas must be reachable")
     }
 
     override val areas: Set<Area>
         get() = playableAreas
 
-    override val cities: Set<City> by lazy {
-        val cities = playableAreas
-                .flatMap(Area::cities)
-                .associate({ city -> Pair(city, PlayableCity(city)) })
-
-        // wrap the connections as well since they must not point to an non-playable city
-        cities.values.forEach({ city -> restrictConnections(city, cities) })
-
-        cities.values.toSet()
-    }
+    override val cities: Set<City>
+        get() = playableCities
 
     private fun isReachable(area: Area, otherAreas: Set<Area>): Boolean {
-        return area.cities.any { city ->
-            otherAreas.any { otherArea ->
-                otherArea.cities.any { otherCity ->
-                    city.connections.any { connection ->
-                        connection.to == otherCity
-                    }
-                }
-            }
-        }
+        return otherAreas.all { otherArea -> area.isReachable(otherArea) }
     }
 
     private fun restrictConnections(city: PlayableCity, otherCities: Map<City, PlayableCity>) {
         city.base.connections
                 .filter({ connection ->
-                    playableAreas.any { playableArea -> playableArea.cities.contains(connection.to) }
+                    otherCities.containsKey(connection.to)
                 })
                 .mapTo(city.playableConnections, { connection ->
-                    PlayableConnection(city, otherCities[connection.to]!!, connection.cost)
+                    PlayableConnection(connection, city, otherCities[connection.to]!!)
                 })
     }
 
