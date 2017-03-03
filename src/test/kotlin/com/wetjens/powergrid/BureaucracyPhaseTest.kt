@@ -195,4 +195,47 @@ class BureaucracyPhaseTest {
         assertEquals(2, powerGrid.playerStates[player2]!!.resources[ResourceType.COAL] ?: 0)
         assertEquals(2, powerGrid.playerStates[player3]!!.resources[ResourceType.OIL] ?: 0)
     }
+
+    @Test
+    fun bureaucracyRemoveHighestFuture() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
+                .passBid() // player2
+                .passBid() // player1
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
+                .passBid() // player 1
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
+                .buyResources(ResourceType.OIL, 2) // player3
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player2
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player1
+                .passBuyResources()
+                .connectCity(duesseldorf) // player3
+                .passConnectCity()
+                .connectCity(essen) // player2
+                .passConnectCity()
+                .connectCity(muenster) // player1
+                .passConnectCity()
+
+        powerGrid = powerGrid
+                .producePower(
+                        setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.COAL, 2)))
+                .producePower(
+                        setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.COAL, 2)))
+                .producePower(
+                        setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.OIL, 2)))
+
+        assertTrue(powerGrid.phase is AuctionPhase)
+
+        // highest power plant from future is removed and added under the pile
+        assertEquals(listOf(6, 7, 8, 9), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
+        assertEquals(listOf(10, 11, 13, 26), powerGrid.powerPlantMarket.future.map(PowerPlant::cost))
+        assertEquals(23, powerGrid.powerPlantMarket.deck.remaining)
+    }
 }

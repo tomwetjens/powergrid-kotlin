@@ -103,4 +103,13 @@ data class PowerPlantDeck private constructor(
         return copy(deck = deck.drop(1))
     }
 
+    /**
+     * Puts a power plant under the pile.
+     */
+    operator fun plus(powerPlant: PowerPlant): PowerPlantDeck {
+        !deck.contains(powerPlant) || throw IllegalArgumentException("deck already contains")
+
+        return copy(deck = deck.plus(powerPlant))
+    }
+
 }

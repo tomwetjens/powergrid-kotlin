@@ -84,13 +84,22 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
 
             // go into bureaucracy phase with players that could produce
             return when (playersThatCanPower.isEmpty()) {
-                true -> nextPhase(addNewResources(newPowerGrid))
+                true -> nextPhase(finish(newPowerGrid))
                 false -> newPowerGrid.copy(
                         phase = BureaucracyPhase(
                                 powerGrid = powerGrid,
                                 players = playersThatCanPower,
                                 nextPhase = nextPhase))
             }
+        }
+
+        private fun finish(powerGrid: PowerGrid): PowerGrid {
+            var newPowerGrid = addNewResources(powerGrid)
+
+            newPowerGrid = newPowerGrid.copy(
+                    powerPlantMarket = newPowerGrid.powerPlantMarket.removeHighestFuture())
+
+            return newPowerGrid
         }
 
         private fun addNewResources(powerGrid: PowerGrid): PowerGrid {
@@ -149,7 +158,7 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
                 playerStates = powerGrid.playerStates + Pair(currentPlayer, newPlayerState))
 
         return when (players.size) {
-            1 -> nextPhase(addNewResources(newPowerGrid))
+            1 -> nextPhase(finish(newPowerGrid))
             else -> newPowerGrid.copy(
                     phase = copy(
                             powerGrid = newPowerGrid,

@@ -37,8 +37,12 @@ data class PowerPlantMarket private constructor(
     operator fun minus(powerPlant: PowerPlant): PowerPlantMarket {
         powerPlant in actual || throw IllegalArgumentException("$powerPlant not in actual")
 
+        return removeAndReplace(powerPlant)
+    }
+
+    private fun removeAndReplace(powerPlant: PowerPlant): PowerPlantMarket {
         val replacement = deck.onTop
-        val newActualAndFuture = (actual - powerPlant + future + replacement)
+        val newActualAndFuture = (actual + future - powerPlant + replacement)
                 .filterNotNull()
                 .sortedBy(PowerPlant::cost)
 
@@ -65,6 +69,20 @@ data class PowerPlantMarket private constructor(
         val lower = actual.firstOrNull { powerPlant -> powerPlant.cost <= cost }
         if (lower != null) {
             return minus(lower).removeLowerOrEqual(cost)
+        } else {
+            return this
+        }
+    }
+
+    /**
+     * Removes the highest power plant from the future offering, putting it back in the deck under the pile,
+     * and replaces it with a new power plant drawn from the deck.
+     */
+    fun removeHighestFuture(): PowerPlantMarket {
+        val highest = future.lastOrNull()
+        if (highest != null) {
+            val replaced = removeAndReplace(highest)
+            return replaced.copy(deck = replaced.deck.plus(highest))
         } else {
             return this
         }

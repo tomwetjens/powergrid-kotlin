@@ -63,4 +63,29 @@ class PowerPlantDeckTest {
         // etc.
     }
 
+    @Test
+    fun plus() {
+        var deck = PowerPlantDeck(random, 2)
+
+        assertEquals(26, deck.remaining)
+        assertEquals(13, deck.onTop?.cost)
+
+        val powerPlant = deck.onTop!!
+
+        deck = -deck
+
+        assertEquals(25, deck.remaining)
+        assertEquals(20, deck.onTop?.cost)
+
+        deck += powerPlant
+
+        assertEquals(26, deck.remaining)
+        assertEquals(20, deck.onTop?.cost)
+
+        // check that it is put under the pile
+        (1..25).forEach { deck = -deck}
+        assertEquals(1, deck.remaining)
+        assertEquals(powerPlant, deck.onTop!!)
+    }
+
 }
