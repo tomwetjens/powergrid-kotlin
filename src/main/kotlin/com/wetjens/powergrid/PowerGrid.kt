@@ -7,6 +7,7 @@ import com.wetjens.powergrid.powerplant.PowerPlantMarket
 import com.wetjens.powergrid.resource.ResourceMarkets
 import com.wetjens.powergrid.resource.ResourceType
 import java.util.*
+import kotlin.comparisons.compareBy
 
 data class PowerGrid constructor(
         val map: NetworkMap,
@@ -85,7 +86,25 @@ data class PowerGrid constructor(
     }
 
     private fun redeterminePlayerOrder(): PowerGrid {
-        return copy(playerOrder = playerOrder.sortedBy({ player -> playerStates[player]!! }).reversed())
+        val newPlayerOrder = players.sortedWith(compareBy(
+                { player -> numberOfConnectedCities(player) },
+                { player ->
+                    playerStates[player]!!.highestPowerPlant?.cost ?: throw IllegalStateException("no power plant")
+                })).reversed()
+
+        return copy(playerOrder = newPlayerOrder)
+    }
+
+    private fun numberOfConnectedCities(player: Player): Int {
+        val numberConnected: Int = cityStates.values
+                .map { cityState ->
+                    cityState.connectedBy.filter { cb ->
+                        cb == player
+                    }.size
+                }
+                .reduce { sum, size -> sum + size }
+
+        return numberConnected
     }
 
     fun passAuction(): PowerGrid {
@@ -186,16 +205,18 @@ data class PowerGrid constructor(
     }
 
     private fun goToBureaucracyPhase(): PowerGrid {
-        return copy(phase = BureaucracyPhase(powerGrid = this, players = playerOrder, nextPhase = { powerGrid ->
-            powerGrid.redeterminePlayerOrder()
-                    .copy(phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder))
-        }))
+        return BureaucracyPhase.start(powerGrid = this, nextPhase = PowerGrid::goToAuctionPhase)
+    }
+
+    private fun goToAuctionPhase(): PowerGrid {
+        return redeterminePlayerOrder()
+                .copy(phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder))
     }
 
     private fun goToBuildPhase(): PowerGrid {
         return copy(phase = BuildPhase(powerGrid = this,
                 buildingPlayers = playerOrder.reversed(),
-                nextPhase = { powerGrid -> powerGrid.goToBureaucracyPhase() }))
+                nextPhase = PowerGrid::goToBureaucracyPhase))
     }
 
     fun connectCity(city: City): PowerGrid {
@@ -211,6 +232,14 @@ data class PowerGrid constructor(
             return phase.passConnectCity()
         } else {
             throw IllegalStateException("not in build phase")
+        }
+    }
+
+    fun producePower(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
+        if (phase is BureaucracyPhase) {
+            return phase.producePower(powerPlants, resources)
+        } else {
+            throw IllegalStateException("not in bureaucracy phase")
         }
     }
 

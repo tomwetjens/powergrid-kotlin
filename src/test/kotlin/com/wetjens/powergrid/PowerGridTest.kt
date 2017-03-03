@@ -640,7 +640,6 @@ class PowerGridTest {
         assertEquals(36, powerGrid.playerStates[player2]!!.balance)
 
         powerGrid = powerGrid.connectCity(muenster)
-                .passConnectCity()
 
         assertEquals(listOf(player1), powerGrid.cityStates[muenster]!!.connectedBy)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
@@ -704,7 +703,7 @@ class PowerGridTest {
         try {
             powerGrid.connectCity(muenster)
             fail("should throw because city is not reachable")
-        } catch (e:IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             assertEquals("not reachable", e.message)
         }
     }
@@ -739,5 +738,132 @@ class PowerGridTest {
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player2, powerGrid.currentPlayer)
+    }
+
+    @Test
+    fun bureaucracyNoPlayersCanPower() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
+                .passBid() // player2
+                .passBid() // player1
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
+                .passBid() // player 1
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+                .passConnectCity()
+                .passConnectCity()
+                .passConnectCity()
+
+        assertTrue(powerGrid.phase is AuctionPhase)
+        assertEquals(player1, powerGrid.currentPlayer)
+
+        assertEquals(57, powerGrid.playerStates[player3]!!.balance)
+        assertEquals(56, powerGrid.playerStates[player2]!!.balance)
+        assertEquals(55, powerGrid.playerStates[player1]!!.balance)
+    }
+
+    @Test
+    fun bureaucracyProduce() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
+                .passBid() // player2
+                .passBid() // player1
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
+                .passBid() // player 1
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
+                .buyResources(ResourceType.OIL, 2) // player3
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player2
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player1
+                .passBuyResources()
+                .connectCity(duesseldorf) // player3
+                .passConnectCity()
+                .connectCity(essen) // player2
+                .passConnectCity()
+                .connectCity(muenster) // player1
+                .passConnectCity()
+
+        assertTrue(powerGrid.phase is BureaucracyPhase)
+        assertEquals(31, powerGrid.playerStates[player3]!!.balance)
+        assertEquals(34, powerGrid.playerStates[player2]!!.balance)
+        assertEquals(32, powerGrid.playerStates[player1]!!.balance)
+
+        assertEquals(20, powerGrid.resourceMarkets[ResourceType.COAL].available)
+        assertEquals(16, powerGrid.resourceMarkets[ResourceType.OIL].available)
+
+        assertEquals(player1, powerGrid.currentPlayer)
+        powerGrid = powerGrid.producePower(
+                setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
+                mapOf(Pair(ResourceType.COAL, 2)))
+
+        assertEquals(54, powerGrid.playerStates[player1]!!.balance)
+        assertEquals(0, powerGrid.playerStates[player1]!!.resources[ResourceType.COAL] ?: 0)
+
+        assertEquals(player2, powerGrid.currentPlayer)
+        powerGrid = powerGrid.producePower(
+                setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
+                mapOf(Pair(ResourceType.COAL, 2)))
+
+        assertEquals(56, powerGrid.playerStates[player2]!!.balance)
+        assertEquals(0, powerGrid.playerStates[player2]!!.resources[ResourceType.COAL] ?: 0)
+
+        assertEquals(player3, powerGrid.currentPlayer)
+        powerGrid = powerGrid.producePower(
+                setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
+                mapOf(Pair(ResourceType.OIL, 2)))
+
+        assertEquals(53, powerGrid.playerStates[player3]!!.balance)
+        assertEquals(0, powerGrid.playerStates[player3]!!.resources[ResourceType.OIL] ?: 0)
+
+        assertTrue(powerGrid.phase is AuctionPhase)
+    }
+
+    @Test
+    fun bureaucracyNewResourcesAddedToMarket() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map)
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
+                .passBid() // player2
+                .passBid() // player1
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
+                .passBid() // player 1
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
+                .buyResources(ResourceType.OIL, 2) // player3
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player2
+                .passBuyResources()
+                .buyResources(ResourceType.COAL, 2) // player1
+                .passBuyResources()
+                .connectCity(duesseldorf) // player3
+                .passConnectCity()
+                .connectCity(essen) // player2
+                .passConnectCity()
+                .connectCity(muenster) // player1
+                .passConnectCity()
+
+        powerGrid = powerGrid
+                .producePower(
+                        setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.COAL, 2)))
+                .producePower(
+                        setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.COAL, 2)))
+                .producePower(
+                        setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
+                        mapOf(Pair(ResourceType.OIL, 2)))
+
+        assertTrue(powerGrid.phase is AuctionPhase)
+
+        // new resources placed into market
+        assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].available)
+        assertEquals(18, powerGrid.resourceMarkets[ResourceType.OIL].available)
     }
 }

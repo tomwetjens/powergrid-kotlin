@@ -6,8 +6,7 @@ import java.util.*
 
 data class PlayerState(val balance: Int = 50,
                        val powerPlants: List<PowerPlant> = emptyList(),
-                       val numberOfHouses: Int = 0,
-                       val resources: Map<ResourceType, Int> = emptyMap()) : Comparable<PlayerState> {
+                       val resources: Map<ResourceType, Int> = emptyMap()) {
 
     fun pay(amount: Int): PlayerState {
         amount <= balance || throw IllegalArgumentException("balance too low")
@@ -25,13 +24,6 @@ data class PlayerState(val balance: Int = 50,
     }
 
     val highestPowerPlant: PowerPlant? = powerPlants.lastOrNull()
-
-    override
-    operator fun compareTo(other: PlayerState): Int {
-        return Comparator.comparing(PlayerState::numberOfHouses)
-                .thenComparing({ playerState -> playerState.highestPowerPlant?.cost ?: throw IllegalStateException("no power plant") })
-                .compare(this, other)
-    }
 
     /**
      * Amount of resources that could be stored theoretically on all the power plants combined.
@@ -102,6 +94,18 @@ data class PlayerState(val balance: Int = 50,
         amount <= storageAvailable[type]!! || throw IllegalArgumentException("max storage exceeded")
 
         return copy(resources = resources + Pair(type, resources[type] ?: 0 + amount))
+    }
+
+    fun earn(amount: Int): PlayerState {
+        amount > 0 || throw IllegalArgumentException("amount too low")
+
+        return copy(balance = balance + amount)
+    }
+
+    fun removeResource(type: ResourceType, amount: Int): PlayerState {
+        amount <= resources[type] ?: 0 || throw IllegalArgumentException("not enough resources")
+
+        return copy(resources = resources + Pair(type, resources[type]!! - amount))
     }
 
 }
