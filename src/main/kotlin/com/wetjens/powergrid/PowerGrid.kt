@@ -51,7 +51,7 @@ data class PowerGrid constructor(
         if (phase is AuctionPhase) {
             checkBid(phase.currentAuctioningPlayer, initialBid, replaces)
 
-            val newPowerPlantMarket = powerPlantMarket - powerPlant
+            val newPowerPlantMarket = (powerPlantMarket - powerPlant).removeLowerOrEqual(leadingPlayerNumberOfCitiesConnected)
 
             val newAuctionPhase = phase.startAuction(powerPlant, initialBid, replaces)
 
@@ -243,4 +243,14 @@ data class PowerGrid constructor(
         }
     }
 
+    val leadingPlayerNumberOfCitiesConnected: Int by lazy {
+        playerStates.keys
+                .map({ player ->
+                    cityStates.values
+                            .fold(0, { sum, cs ->
+                                sum + cs.connectedBy.filter { cb -> cb == player }.size
+                            })
+                })
+                .reduce(Math::max)
+    }
 }

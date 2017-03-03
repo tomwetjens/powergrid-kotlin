@@ -87,4 +87,22 @@ class PowerPlantMarketTest {
         // etc.
     }
 
+    @Test
+    fun removeLowerOrEqual() {
+        var market = PowerPlantMarket(random, 2)
+
+        assertEquals(listOf(3, 4, 5, 6), market.actual.map(PowerPlant::cost))
+        assertEquals(listOf(7, 8, 9, 10), market.future.map(PowerPlant::cost))
+
+        market = market.removeLowerOrEqual(6)
+
+        assertEquals(listOf(7, 8, 9, 10), market.actual.map(PowerPlant::cost))
+        assertEquals(listOf(13, 19, 20, 22), market.future.map(PowerPlant::cost))
+
+        market = market.removeLowerOrEqual(15)
+
+        assertEquals(listOf(19, 20, 22, 23), market.actual.map(PowerPlant::cost))
+        assertEquals(listOf(37, 39, 44, 96), market.future.map(PowerPlant::cost))
+    }
+
 }

@@ -57,9 +57,12 @@ data class BuildPhase(private val powerGrid: PowerGrid,
         val newPlayerState = playerState.pay(cost)
         val newCityState = cityState.connect(currentBuildingPlayer)
 
+        val newPowerPlantMarket = powerGrid.powerPlantMarket.removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
+
         val newPowerGrid = powerGrid.copy(
                 cityStates = powerGrid.cityStates + Pair(city, newCityState),
-                playerStates = powerGrid.playerStates + Pair(currentBuildingPlayer, newPlayerState))
+                playerStates = powerGrid.playerStates + Pair(currentBuildingPlayer, newPlayerState),
+                powerPlantMarket = newPowerPlantMarket)
 
         return newPowerGrid.copy(phase = copy(powerGrid = newPowerGrid))
     }

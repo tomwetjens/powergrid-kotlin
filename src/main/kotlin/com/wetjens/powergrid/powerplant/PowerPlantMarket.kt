@@ -57,4 +57,17 @@ data class PowerPlantMarket private constructor(
         return copy(actual = actual + future, future = emptyList())
     }
 
+    /**
+     * Removes all power plants from the actual offering that have a cost lower than or equal to the given cost,
+     * and replaces them with new power plants from the deck (that have a cost higher than the given cost).
+     */
+    fun removeLowerOrEqual(cost: Int): PowerPlantMarket {
+        val lower = actual.firstOrNull { powerPlant -> powerPlant.cost <= cost }
+        if (lower != null) {
+            return minus(lower).removeLowerOrEqual(cost)
+        } else {
+            return this
+        }
+    }
+
 }
