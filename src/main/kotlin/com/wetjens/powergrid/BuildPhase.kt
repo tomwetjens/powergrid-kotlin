@@ -1,7 +1,6 @@
 package com.wetjens.powergrid
 
 import com.wetjens.powergrid.map.City
-import com.wetjens.powergrid.map.Connection
 
 /**
  * Build phase in a game of Power Grid.
@@ -38,16 +37,12 @@ data class BuildPhase(private val powerGrid: PowerGrid,
         val connectionCost = when (alreadyConnectedCities.isEmpty()) {
             true -> 0
             else -> {
-                val possibleFromCities = alreadyConnectedCities.filter { c -> c.hasConnectionTo(city) }
-                possibleFromCities.isNotEmpty() || throw IllegalArgumentException("not reachable")
+                // find the cheapest path from any of the already connected cities
+                val cheapestPath = alreadyConnectedCities
+                        .map { source -> powerGrid.map.shortestPath(source, city) }
+                        .reduce({ cheapest, path -> if (path.cost < cheapest.cost) path else cheapest })
 
-                // pick the cheapest connection
-                val connection = possibleFromCities
-                        .flatMap(City::connections)
-                        .sortedBy(Connection::cost)
-                        .first()
-
-                connection.cost
+                cheapestPath.cost
             }
         }
 

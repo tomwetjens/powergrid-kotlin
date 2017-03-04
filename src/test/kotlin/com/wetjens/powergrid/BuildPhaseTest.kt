@@ -119,15 +119,13 @@ class BuildPhaseTest {
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
+        assertEquals(47, powerGrid.playerStates[player3]!!.balance)
 
-        powerGrid = powerGrid.connectCity(duesseldorf)
+        powerGrid = powerGrid
+                .connectCity(duesseldorf)
+                .connectCity(muenster)
 
-        try {
-            powerGrid.connectCity(muenster)
-            fail("should throw because city is not reachable")
-        } catch (e: IllegalArgumentException) {
-            assertEquals("not reachable", e.message)
-        }
+        assertEquals(19, powerGrid.playerStates[player3]!!.balance)
     }
 
     @Test
@@ -147,6 +145,7 @@ class BuildPhaseTest {
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
+        assertEquals(47, powerGrid.playerStates[player3]!!.balance)
 
         powerGrid = powerGrid.connectCity(duesseldorf)
                 .connectCity(essen)
@@ -156,7 +155,7 @@ class BuildPhaseTest {
         assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(listOf(player3), powerGrid.cityStates[essen]!!.connectedBy)
         assertEquals(listOf(player3), powerGrid.cityStates[muenster]!!.connectedBy)
-        assertEquals(15, powerGrid.playerStates[player3]!!.balance)
+        assertEquals(9, powerGrid.playerStates[player3]!!.balance)
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player2, powerGrid.currentPlayer)
