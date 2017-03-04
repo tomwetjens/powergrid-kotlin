@@ -144,7 +144,7 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
         val connected = powerGrid.cityStates.values.fold(0, { sum, cs -> sum + cs.connectedBy.filter { cb -> cb == currentPlayer }.size })
 
         val powers = Math.min(connected, produced)
-        val payment = payments[powers]
+        val payment = payments[Math.min(powers, payments.size - 1)]
 
         var newPlayerState = playerState.earn(payment)
 
