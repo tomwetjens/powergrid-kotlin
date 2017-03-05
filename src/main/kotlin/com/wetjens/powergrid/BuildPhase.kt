@@ -64,7 +64,7 @@ data class BuildPhase(private val powerGrid: PowerGrid,
 
     fun passConnectCity(): PowerGrid {
         return when (buildingPlayers.size) {
-            1 -> nextPhase(powerGrid)
+            1 -> finish()
             else -> {
                 val newBuildPhase = copy(
                         buildingPlayers = buildingPlayers - currentBuildingPlayer,
@@ -73,6 +73,18 @@ data class BuildPhase(private val powerGrid: PowerGrid,
                 powerGrid.copy(phase = newBuildPhase)
             }
         }
+    }
+
+    private fun finish(): PowerGrid {
+        return nextPhase(when (powerGrid.step == 1 && powerGrid.leadingPlayerNumberOfCitiesConnected >= 7) {
+            true -> {
+                val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
+                        .removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
+
+                powerGrid.copy(step = 2, powerPlantMarket = newPowerPlantMarket)
+            }
+            false -> powerGrid
+        })
     }
 
 }

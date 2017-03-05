@@ -160,4 +160,51 @@ class BuildPhaseTest {
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player2, powerGrid.currentPlayer)
     }
+
+    @Test
+    fun step2AfterPlayConnects7thCity() {
+        var powerGrid = PowerGrid(random = random, players = players, map = map).copy(playerStates = mapOf(
+                Pair(player1, PlayerState(balance = 9999)),
+                Pair(player2, PlayerState(balance = 9999)),
+                Pair(player3, PlayerState(balance = 9999))
+        ))
+
+        val cities = map.cities.toList()
+
+        powerGrid = powerGrid
+                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+                .passBid()
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
+                .passBid()
+                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .buyResources(ResourceType.OIL, 2)
+                .passBuyResources()
+                .passBuyResources()
+                .passBuyResources()
+
+        // player connects 7 cities
+        (0..6).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+
+        // should still be in step 1
+        assertEquals(1, powerGrid.step)
+
+        powerGrid = powerGrid.passConnectCity()
+        // other player also connects 7 cities
+        (7..13).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+
+        // should still be in step 1
+        assertEquals(1, powerGrid.step)
+
+        powerGrid = powerGrid.passConnectCity()
+                .passConnectCity()
+
+        // should be in step 2
+        assertEquals(2, powerGrid.step)
+        assertTrue(powerGrid.phase is BureaucracyPhase)
+
+        // lowest power plant should be removed
+        assertEquals(listOf(9, 10, 11, 13), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
+        assertEquals(20, powerGrid.powerPlantMarket.deck.remaining)
+    }
 }
