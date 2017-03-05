@@ -49,7 +49,7 @@ class BuildPhaseTest {
         powerGrid = powerGrid.connectCity(duesseldorf)
                 .passConnectCity()
 
-        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(37, powerGrid.playerStates[player3]!!.balance)
 
         assertTrue(powerGrid.phase is BuildPhase)
@@ -58,12 +58,12 @@ class BuildPhaseTest {
         powerGrid = powerGrid.connectCity(essen)
                 .passConnectCity()
 
-        assertEquals(listOf(player2), powerGrid.cityStates[essen]!!.connectedBy)
+        assertEquals(setOf(player2), powerGrid.cityStates[essen]!!.connectedBy)
         assertEquals(36, powerGrid.playerStates[player2]!!.balance)
 
         powerGrid = powerGrid.connectCity(muenster)
 
-        assertEquals(listOf(player1), powerGrid.cityStates[muenster]!!.connectedBy)
+        assertEquals(setOf(player1), powerGrid.cityStates[muenster]!!.connectedBy)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
     }
 
@@ -88,7 +88,7 @@ class BuildPhaseTest {
         powerGrid = powerGrid.connectCity(duesseldorf)
                 .passConnectCity()
 
-        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(37, powerGrid.playerStates[player3]!!.balance)
 
         assertTrue(powerGrid.phase is BuildPhase)
@@ -152,9 +152,9 @@ class BuildPhaseTest {
                 .connectCity(muenster)
                 .passConnectCity()
 
-        assertEquals(listOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
-        assertEquals(listOf(player3), powerGrid.cityStates[essen]!!.connectedBy)
-        assertEquals(listOf(player3), powerGrid.cityStates[muenster]!!.connectedBy)
+        assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
+        assertEquals(setOf(player3), powerGrid.cityStates[essen]!!.connectedBy)
+        assertEquals(setOf(player3), powerGrid.cityStates[muenster]!!.connectedBy)
         assertEquals(9, powerGrid.playerStates[player3]!!.balance)
 
         assertTrue(powerGrid.phase is BuildPhase)

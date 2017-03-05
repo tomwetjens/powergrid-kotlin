@@ -57,15 +57,8 @@ data class PowerGrid constructor(
     val currentPlayer: Player
         get() = phase.currentPlayer
 
-    val leadingPlayerNumberOfCitiesConnected: Int by lazy {
-        playerStates.keys
-                .map({ player ->
-                    cityStates.values
-                            .fold(0, { sum, cs ->
-                                sum + cs.connectedBy.filter { cb -> cb == player }.size
-                            })
-                })
-                .reduce(Math::max)
+    val mostCitiesConnectedByPlayer: Int by lazy {
+        playerStates.keys.map({ player -> numberOfConnectedCities(player) }).reduce(Math::max)
     }
 
     fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant? = null): PowerGrid {
@@ -150,16 +143,8 @@ data class PowerGrid constructor(
         return copy(playerOrder = newPlayerOrder)
     }
 
-    private fun numberOfConnectedCities(player: Player): Int {
-        val numberConnected: Int = cityStates.values
-                .map { cityState ->
-                    cityState.connectedBy.filter { cb ->
-                        cb == player
-                    }.size
-                }
-                .reduce { sum, size -> sum + size }
-
-        return numberConnected
+    fun numberOfConnectedCities(player: Player): Int {
+        return cityStates.values.filter { cityState -> cityState.connectedBy.contains(player) }.size
     }
 
 }

@@ -59,7 +59,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
         checkBid(powerGrid, currentAuctioningPlayer, initialBid, replaces)
 
         val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerPlant)
-                .removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
+                .removeLowerOrEqual(powerGrid.mostCitiesConnectedByPlayer)
 
         initialBid >= powerPlant.cost || throw IllegalArgumentException("bid too low")
 

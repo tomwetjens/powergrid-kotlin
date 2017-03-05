@@ -58,7 +58,7 @@ data class BuildPhase(
         val newPlayerState = playerState.pay(cost)
         val newCityState = cityState.connect(currentBuildingPlayer)
 
-        val newPowerPlantMarket = powerGrid.powerPlantMarket.removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
+        val newPowerPlantMarket = powerGrid.powerPlantMarket.removeLowerOrEqual(powerGrid.mostCitiesConnectedByPlayer)
 
         return powerGrid.copy(
                 cityStates = powerGrid.cityStates + Pair(city, newCityState),
@@ -80,10 +80,10 @@ data class BuildPhase(
     }
 
     private fun finish(powerGrid: PowerGrid): PowerGrid {
-        return BureaucracyPhase.start(when (powerGrid.step == 1 && powerGrid.leadingPlayerNumberOfCitiesConnected >= 7) {
+        return BureaucracyPhase.start(when (powerGrid.step == 1 && powerGrid.mostCitiesConnectedByPlayer >= 7) {
             true -> {
                 val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
-                        .removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
+                        .removeLowerOrEqual(powerGrid.mostCitiesConnectedByPlayer)
 
                 powerGrid.copy(step = 2, powerPlantMarket = newPowerPlantMarket)
             }

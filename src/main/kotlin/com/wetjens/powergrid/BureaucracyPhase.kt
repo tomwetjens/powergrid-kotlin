@@ -135,7 +135,7 @@ data class BureaucracyPhase(val players: List<Player>,
         hasEnoughResourcesToRun(powerPlants, resources) || throw IllegalArgumentException("not enough resources")
 
         val produced = powerPlants.fold(0, { sum, powerPlant -> sum + powerPlant.powers })
-        val connected = powerGrid.cityStates.values.fold(0, { sum, cs -> sum + cs.connectedBy.filter { cb -> cb == currentPlayer }.size })
+        val connected = powerGrid.numberOfConnectedCities(currentPlayer)
 
         val powers = Math.min(connected, produced)
         val payment = payments[Math.min(powers, payments.size - 1)]
