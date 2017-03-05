@@ -14,9 +14,9 @@ data class PowerGrid constructor(
         val cityStates: Map<City, CityState> = map.cities.associate { city -> Pair(city, CityState()) },
         val step: Int = 1,
         val round: Int = 1,
-        val phase: Phase,
         val players: List<Player>,
         val playerOrder: List<Player>,
+        val phase: Phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder, nextPhase = PowerGrid::goToBuyResourcesPhase),
         val playerStates: Map<Player, PlayerState> = players.associate { player -> Pair(player, PlayerState()) },
         val maxOwnedPowerPlants: Int = when (players.size) {
             2 -> 4
@@ -29,7 +29,7 @@ data class PowerGrid constructor(
             else -> 17
         },
         val powerPlantMarket: PowerPlantMarket,
-        val resourceMarkets: ResourceMarkets) {
+        val resourceMarkets: ResourceMarkets = ResourceMarkets()) {
 
     init {
         players.size <= 6 || throw IllegalArgumentException("too many players")
@@ -53,17 +53,6 @@ data class PowerGrid constructor(
             players = players,
             playerOrder = players.shuffle(random),
             powerPlantMarket = PowerPlantMarket(random, players.size))
-
-    private constructor(map: NetworkMap,
-                        players: List<Player>,
-                        playerOrder: List<Player>,
-                        powerPlantMarket: PowerPlantMarket) : this(
-            map = map,
-            phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder, nextPhase = PowerGrid::goToBuyResourcesPhase),
-            players = players,
-            playerOrder = playerOrder,
-            powerPlantMarket = powerPlantMarket,
-            resourceMarkets = ResourceMarkets())
 
     val currentPlayer: Player
         get() = phase.currentPlayer
