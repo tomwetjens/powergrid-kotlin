@@ -57,82 +57,59 @@ data class PowerGrid constructor(
     val currentPlayer: Player
         get() = phase.currentPlayer
 
-    val mostCitiesConnectedByPlayer: Int by lazy {
+    /**
+     * Number of cities connected by the leading player.
+     */
+    val numberOfCitiesConnectedByLeadingPlayer: Int by lazy {
         playerStates.keys.map({ player -> numberOfConnectedCities(player) }).reduce(Math::max)
     }
 
+    /**
+     * Starts a new auction for the current player that is up for auction (if no auction is already in progress), for a given power plant with an initial bid.
+     *
+     * @param initialBid Must be equal to or greather than the cost of the chosen power plant.
+     * @param replaces If player reached max number of power plants that can be owned, this power plant must be replaced with the new power plant.
+     */
     fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant? = null): PowerGrid {
-        if (phase is AuctionPhase) {
-            return phase.startAuction(this, powerPlant, initialBid, replaces)
-        } else {
-            throw IllegalStateException("not in auction phase")
-        }
+        return inPhase<AuctionPhase>().startAuction(this, powerPlant, initialBid, replaces)
     }
 
     fun passAuction(): PowerGrid {
-        if (phase is AuctionPhase) {
-            return phase.passAuction(this)
-        } else {
-            throw IllegalStateException("not in auction phase")
-        }
+        return inPhase<AuctionPhase>().passAuction(this)
     }
 
     fun raise(bid: Int, replaces: PowerPlant? = null): PowerGrid {
-        if (phase is AuctionPhase) {
-            return phase.raise(this, bid, replaces)
-        } else {
-            throw IllegalStateException("not in auction phase")
-        }
+        return inPhase<AuctionPhase>().raise(this, bid, replaces)
     }
 
     fun passBid(): PowerGrid {
-        if (phase is AuctionPhase) {
-            return phase.passBid(this)
-        } else {
-            throw IllegalStateException("not in auction phase")
-        }
+        return inPhase<AuctionPhase>().passBid(this)
     }
 
     fun buyResources(type: ResourceType, amount: Int): PowerGrid {
-        if (phase is BuyResourcesPhase) {
-            return phase.buy(this, type, amount)
-        } else {
-            throw IllegalStateException("not in buy resources phase")
-        }
+        return inPhase<BuyResourcesPhase>().buy(this, type, amount)
     }
 
     fun passBuyResources(): PowerGrid {
-        if (phase is BuyResourcesPhase) {
-            return phase.pass(this)
-        } else {
-            throw IllegalStateException("not in buy resources phase")
-        }
+        return inPhase<BuyResourcesPhase>().pass(this)
     }
 
     fun connectCity(city: City): PowerGrid {
-        if (phase is BuildPhase) {
-            return phase.connectCity(this, city)
-        } else {
-            throw IllegalStateException("not in build phase")
-        }
+        return inPhase<BuildPhase>().connectCity(this, city)
     }
 
     fun passConnectCity(): PowerGrid {
-        if (phase is BuildPhase) {
-            return phase.passConnectCity(this)
-        } else {
-            throw IllegalStateException("not in build phase")
-        }
+        return inPhase<BuildPhase>().passConnectCity(this)
     }
 
     fun producePower(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
-        if (phase is BureaucracyPhase) {
-            return phase.producePower(this, powerPlants, resources)
-        } else {
-            throw IllegalStateException("not in bureaucracy phase")
-        }
+        return inPhase<BureaucracyPhase>().producePower(this, powerPlants, resources)
     }
 
+    /**
+     * Redetermines the player order where the first player is the player that has the highest number of cities connected,
+     * then the player that has the highest power plant.
+     */
     fun redeterminePlayerOrder(): PowerGrid {
         val newPlayerOrder = players.sortedWith(compareBy(
                 { player -> numberOfConnectedCities(player) },
@@ -143,8 +120,15 @@ data class PowerGrid constructor(
         return copy(playerOrder = newPlayerOrder)
     }
 
+    /**
+     * Returns the number of cities that are connected by the given player.
+     */
     fun numberOfConnectedCities(player: Player): Int {
         return cityStates.values.filter { cityState -> cityState.connectedBy.contains(player) }.size
+    }
+
+    private inline fun <reified T : Phase> inPhase(): T {
+        return phase as? T ?: throw IllegalStateException("unexpected phase $phase")
     }
 
 }

@@ -51,7 +51,8 @@ data class AuctionPhase(val biddingOrder: List<Player>,
      * Starts a new auction for the current player that is up for auction (if no auction is already in progress),
      * for a given power plant with an initial bid.
      *
-     * @param bid must be at minimum the cost of the power plant
+     * @param initialBid Must be equal to or greather than the cost of the chosen power plant.
+     * @param replaces If player reached max number of power plants that can be owned, this power plant must be replaced with the new power plant.
      */
     fun startAuction(powerGrid: PowerGrid, powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant?): PowerGrid {
         currentAuction == null || throw IllegalStateException("auction in progress")
@@ -59,7 +60,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
         checkBid(powerGrid, currentAuctioningPlayer, initialBid, replaces)
 
         val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerPlant)
-                .removeLowerOrEqual(powerGrid.mostCitiesConnectedByPlayer)
+                .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
 
         initialBid >= powerPlant.cost || throw IllegalArgumentException("bid too low")
 
