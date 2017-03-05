@@ -85,12 +85,9 @@ data class AuctionPhase(val biddingOrder: List<Player>,
             // last player to auction, just buy it
             val newPlayerStates = completePowerPlantPurchase(powerGrid, currentAuctioningPlayer, powerPlant, initialBid, replaces)
 
-            val newPowerGrid = powerGrid.copy(playerStates = newPlayerStates, powerPlantMarket = newPowerPlantMarket)
-
-            BuyResourcesPhase.start(when (powerGrid.round) {
-                1 -> newPowerGrid.redeterminePlayerOrder()
-                else -> newPowerGrid
-            })
+            finish(powerGrid.copy(
+                    playerStates = newPlayerStates,
+                    powerPlantMarket = newPowerPlantMarket))
         } else {
             powerGrid.copy(phase = newAuctionPhase, powerPlantMarket = newPowerPlantMarket)
         }
@@ -127,13 +124,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
 
         return when (newAuctionPhase.completed) {
             false -> newPowerGrid
-            else -> {
-                BuyResourcesPhase.start(when (newAuctionPhase.closedAuctions.isEmpty()) {
-                // if no power plants are sold in phase, then throw out lowest and replace
-                    true -> newPowerGrid.copy(powerPlantMarket = powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
-                    false -> newPowerGrid
-                })
-            }
+            else -> finish(newPowerGrid)
         }
     }
 
@@ -174,8 +165,28 @@ data class AuctionPhase(val biddingOrder: List<Player>,
 
         return when (newAuctionPhase.completed) {
             false -> powerGrid.copy(phase = newAuctionPhase, playerStates = newPlayerStates)
-            true -> BuyResourcesPhase.start(powerGrid.copy(playerStates = newPlayerStates))
+            true -> finish(powerGrid.copy(playerStates = newPlayerStates))
         }
+    }
+
+    private fun finish(powerGrid: PowerGrid): PowerGrid {
+        val newStep = if (powerGrid.step == 2 && powerGrid.powerPlantMarket.future.isEmpty()) 3 else powerGrid.step
+
+        val newPowerGrid = when (powerGrid.round) {
+            1 -> powerGrid.redeterminePlayerOrder()
+            else -> powerGrid
+        }
+
+        return BuyResourcesPhase.start(when (closedAuctions.isEmpty()) {
+        // if no power plants are sold in phase, then throw out lowest and replace
+            true -> newPowerGrid.copy(
+                    step = newStep,
+                    powerPlantMarket = newPowerGrid.powerPlantMarket - newPowerGrid.powerPlantMarket.actual[0])
+            false -> when (newPowerGrid.step) {
+                newStep -> newPowerGrid
+                else -> newPowerGrid.copy(step = newStep)
+            }
+        })
     }
 
     /**
