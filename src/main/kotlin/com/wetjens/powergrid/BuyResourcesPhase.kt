@@ -7,9 +7,15 @@ import com.wetjens.powergrid.resource.ResourceType
  * Buy resources phase in a game of Power Grid.
  */
 data class BuyResourcesPhase(
-        private val nextPhase: (PowerGrid) -> PowerGrid,
         val buyingPlayers: List<Player>,
         val currentBuyingPlayer: Player = buyingPlayers.first()) : Phase {
+
+    companion object Factory {
+
+        fun start(powerGrid: PowerGrid): PowerGrid {
+            return powerGrid.copy(phase = BuyResourcesPhase(buyingPlayers = powerGrid.playerOrder.reversed()))
+        }
+    }
 
     override val currentPlayer: Player
         get() = currentBuyingPlayer
@@ -36,7 +42,7 @@ data class BuyResourcesPhase(
 
     fun pass(powerGrid: PowerGrid): PowerGrid {
         return when (buyingPlayers.size) {
-            1 -> nextPhase(powerGrid)
+            1 -> BuildPhase.start(powerGrid)
             else -> powerGrid.copy(phase = copy(buyingPlayers = buyingPlayers - currentBuyingPlayer, currentBuyingPlayer = nextBuyingPlayer))
         }
     }

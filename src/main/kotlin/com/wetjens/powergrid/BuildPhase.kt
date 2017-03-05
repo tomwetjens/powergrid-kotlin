@@ -6,9 +6,15 @@ import com.wetjens.powergrid.map.City
  * Build phase in a game of Power Grid.
  */
 data class BuildPhase(
-        private val nextPhase: (PowerGrid) -> PowerGrid,
         val buildingPlayers: List<Player>,
         val currentBuildingPlayer: Player = buildingPlayers.first()) : Phase {
+
+    companion object Factory {
+
+        fun start(powerGrid: PowerGrid): PowerGrid {
+            return powerGrid.copy(phase = BuildPhase(buildingPlayers = powerGrid.playerOrder.reversed()))
+        }
+    }
 
     override val currentPlayer: Player
         get() = currentBuildingPlayer
@@ -74,7 +80,7 @@ data class BuildPhase(
     }
 
     private fun finish(powerGrid: PowerGrid): PowerGrid {
-        return nextPhase(when (powerGrid.step == 1 && powerGrid.leadingPlayerNumberOfCitiesConnected >= 7) {
+        return BureaucracyPhase.start(when (powerGrid.step == 1 && powerGrid.leadingPlayerNumberOfCitiesConnected >= 7) {
             true -> {
                 val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
                         .removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)

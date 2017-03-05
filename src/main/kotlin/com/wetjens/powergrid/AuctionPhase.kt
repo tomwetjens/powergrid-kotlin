@@ -12,13 +12,21 @@ import com.wetjens.powergrid.powerplant.PowerPlant
  *
  * If a player passes to start an auction, he cannot participate in any subsequent auctions started by other players.
  */
-data class AuctionPhase(
-        private val nextPhase: (PowerGrid) -> PowerGrid,
-        val biddingOrder: List<Player>,
-        val auctioningPlayers: List<Player>,
-        val currentAuctioningPlayer: Player = auctioningPlayers.first(),
-        val closedAuctions: List<Auction> = emptyList(),
-        private val currentAuction: Auction? = null) : Phase {
+data class AuctionPhase(val biddingOrder: List<Player>,
+                        val auctioningPlayers: List<Player>,
+                        val currentAuctioningPlayer: Player = auctioningPlayers.first(),
+                        val closedAuctions: List<Auction> = emptyList(),
+                        private val currentAuction: Auction? = null) : Phase {
+
+    companion object Factory {
+
+        fun start(powerGrid: PowerGrid): PowerGrid {
+            return powerGrid.redeterminePlayerOrder().copy(
+                    phase = AuctionPhase(
+                            biddingOrder = powerGrid.players,
+                            auctioningPlayers = powerGrid.playerOrder))
+        }
+    }
 
     override val currentPlayer: Player
         get() = when (auctionInProgress) {
@@ -77,7 +85,7 @@ data class AuctionPhase(
 
             val newPowerGrid = powerGrid.copy(playerStates = newPlayerStates, powerPlantMarket = newPowerPlantMarket)
 
-            nextPhase(when (powerGrid.round) {
+            BuyResourcesPhase.start(when (powerGrid.round) {
                 1 -> newPowerGrid.redeterminePlayerOrder()
                 else -> newPowerGrid
             })
@@ -118,8 +126,8 @@ data class AuctionPhase(
         return when (newAuctionPhase.completed) {
             false -> newPowerGrid
             else -> {
-                nextPhase(when (newAuctionPhase.closedAuctions.isEmpty()) {
-                    // if no power plants are sold in phase, then throw out lowest and replace
+                BuyResourcesPhase.start(when (newAuctionPhase.closedAuctions.isEmpty()) {
+                // if no power plants are sold in phase, then throw out lowest and replace
                     true -> newPowerGrid.copy(powerPlantMarket = powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
                     false -> newPowerGrid
                 })
@@ -164,10 +172,7 @@ data class AuctionPhase(
 
         return when (newAuctionPhase.completed) {
             false -> powerGrid.copy(phase = newAuctionPhase, playerStates = newPlayerStates)
-            true -> {
-                val newPowerGrid = powerGrid.copy(playerStates = newPlayerStates)
-                nextPhase(newPowerGrid)
-            }
+            true -> BuyResourcesPhase.start(powerGrid.copy(playerStates = newPlayerStates))
         }
     }
 

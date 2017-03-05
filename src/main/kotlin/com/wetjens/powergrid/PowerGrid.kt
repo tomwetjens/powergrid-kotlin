@@ -16,7 +16,7 @@ data class PowerGrid constructor(
         val round: Int = 1,
         val players: List<Player>,
         val playerOrder: List<Player>,
-        val phase: Phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder, nextPhase = PowerGrid::goToBuyResourcesPhase),
+        val phase: Phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder),
         val playerStates: Map<Player, PlayerState> = players.associate { player -> Pair(player, PlayerState()) },
         val maxOwnedPowerPlants: Int = when (players.size) {
             2 -> 4
@@ -162,27 +162,4 @@ data class PowerGrid constructor(
         return numberConnected
     }
 
-    private fun goToAuctionPhase(): PowerGrid {
-        return redeterminePlayerOrder().copy(
-                phase = AuctionPhase(
-                        biddingOrder = players,
-                        auctioningPlayers = playerOrder,
-                        nextPhase = PowerGrid::goToBuyResourcesPhase))
-    }
-
-    private fun goToBuyResourcesPhase(): PowerGrid {
-        return copy(phase = BuyResourcesPhase(
-                buyingPlayers = playerOrder.reversed(),
-                nextPhase = PowerGrid::goToBuildPhase))
-    }
-
-    private fun goToBuildPhase(): PowerGrid {
-        return copy(phase = BuildPhase(
-                buildingPlayers = playerOrder.reversed(),
-                nextPhase = PowerGrid::goToBureaucracyPhase))
-    }
-
-    private fun goToBureaucracyPhase(): PowerGrid {
-        return BureaucracyPhase.start(powerGrid = this, nextPhase = PowerGrid::goToAuctionPhase)
-    }
 }

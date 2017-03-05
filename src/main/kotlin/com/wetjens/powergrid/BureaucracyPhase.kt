@@ -7,8 +7,7 @@ import com.wetjens.powergrid.resource.ResourceType
 /**
  * Bureaucracy phase in a game of Power Grid.
  */
-data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
-                            val players: List<Player>,
+data class BureaucracyPhase(val players: List<Player>,
                             override val currentPlayer: Player = players.first()) : Phase {
 
     companion object Factory {
@@ -47,7 +46,6 @@ data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
         )
 
         fun start(powerGrid: PowerGrid,
-                  nextPhase: (PowerGrid) -> PowerGrid,
                   players: List<Player> = powerGrid.playerOrder): PowerGrid {
 
             val playersThatCanPower = players
@@ -83,11 +81,9 @@ data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
 
             // go into bureaucracy phase with players that could produce
             return when (playersThatCanPower.isEmpty()) {
-                true -> nextPhase(finish(newPowerGrid))
+                true -> finish(newPowerGrid)
                 false -> newPowerGrid.copy(
-                        phase = BureaucracyPhase(
-                                players = playersThatCanPower,
-                                nextPhase = nextPhase))
+                        phase = BureaucracyPhase(players = playersThatCanPower))
             }
         }
 
@@ -97,7 +93,7 @@ data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
             newPowerGrid = newPowerGrid.copy(
                     powerPlantMarket = newPowerGrid.powerPlantMarket.removeHighestFuture())
 
-            return newPowerGrid
+            return AuctionPhase.start(newPowerGrid)
         }
 
         private fun addNewResources(powerGrid: PowerGrid): PowerGrid {
@@ -156,7 +152,7 @@ data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
                 playerStates = powerGrid.playerStates + Pair(currentPlayer, newPlayerState))
 
         return when (players.size) {
-            1 -> nextPhase(finish(newPowerGrid))
+            1 -> finish(newPowerGrid)
             else -> newPowerGrid.copy(
                     phase = copy(
                             players = players - currentPlayer,
