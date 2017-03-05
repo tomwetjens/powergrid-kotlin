@@ -5,10 +5,10 @@ import com.wetjens.powergrid.map.City
 /**
  * Build phase in a game of Power Grid.
  */
-data class BuildPhase(private val powerGrid: PowerGrid,
-                      private val nextPhase: (PowerGrid) -> PowerGrid,
-                      val buildingPlayers: List<Player>,
-                      val currentBuildingPlayer: Player = buildingPlayers.first()) : Phase {
+data class BuildPhase(
+        private val nextPhase: (PowerGrid) -> PowerGrid,
+        val buildingPlayers: List<Player>,
+        val currentBuildingPlayer: Player = buildingPlayers.first()) : Phase {
 
     override val currentPlayer: Player
         get() = currentBuildingPlayer
@@ -18,7 +18,7 @@ data class BuildPhase(private val powerGrid: PowerGrid,
         buildingPlayers[nextIndex]
     }
 
-    fun connectCity(city: City): PowerGrid {
+    fun connectCity(powerGrid: PowerGrid, city: City): PowerGrid {
         powerGrid.map.cities.contains(city) || throw IllegalArgumentException("city not playable")
 
         val playerState = powerGrid.playerStates[currentBuildingPlayer]!!
@@ -54,17 +54,15 @@ data class BuildPhase(private val powerGrid: PowerGrid,
 
         val newPowerPlantMarket = powerGrid.powerPlantMarket.removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
 
-        val newPowerGrid = powerGrid.copy(
+        return powerGrid.copy(
                 cityStates = powerGrid.cityStates + Pair(city, newCityState),
                 playerStates = powerGrid.playerStates + Pair(currentBuildingPlayer, newPlayerState),
                 powerPlantMarket = newPowerPlantMarket)
-
-        return newPowerGrid.copy(phase = copy(powerGrid = newPowerGrid))
     }
 
-    fun passConnectCity(): PowerGrid {
+    fun passConnectCity(powerGrid: PowerGrid): PowerGrid {
         return when (buildingPlayers.size) {
-            1 -> finish()
+            1 -> finish(powerGrid)
             else -> {
                 val newBuildPhase = copy(
                         buildingPlayers = buildingPlayers - currentBuildingPlayer,
@@ -75,7 +73,7 @@ data class BuildPhase(private val powerGrid: PowerGrid,
         }
     }
 
-    private fun finish(): PowerGrid {
+    private fun finish(powerGrid: PowerGrid): PowerGrid {
         return nextPhase(when (powerGrid.step == 1 && powerGrid.leadingPlayerNumberOfCitiesConnected >= 7) {
             true -> {
                 val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])

@@ -118,7 +118,7 @@ data class PowerGrid constructor(
 
     fun connectCity(city: City): PowerGrid {
         if (phase is BuildPhase) {
-            return phase.connectCity(city)
+            return phase.connectCity(this, city)
         } else {
             throw IllegalStateException("not in build phase")
         }
@@ -126,7 +126,7 @@ data class PowerGrid constructor(
 
     fun passConnectCity(): PowerGrid {
         if (phase is BuildPhase) {
-            return phase.passConnectCity()
+            return phase.passConnectCity(this)
         } else {
             throw IllegalStateException("not in build phase")
         }
@@ -177,7 +177,7 @@ data class PowerGrid constructor(
     }
 
     private fun goToBuildPhase(): PowerGrid {
-        return copy(phase = BuildPhase(powerGrid = this,
+        return copy(phase = BuildPhase(
                 buildingPlayers = playerOrder.reversed(),
                 nextPhase = PowerGrid::goToBureaucracyPhase))
     }
