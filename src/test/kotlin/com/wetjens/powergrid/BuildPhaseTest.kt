@@ -190,8 +190,8 @@ class BuildPhaseTest {
         assertEquals(1, powerGrid.step)
 
         powerGrid = powerGrid.passConnectCity()
-        // other player also connects 7 cities
-        (7..13).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+        // other player connects 9 cities
+        (7..15).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
 
         // should still be in step 1
         assertEquals(1, powerGrid.step)
@@ -203,8 +203,8 @@ class BuildPhaseTest {
         assertEquals(2, powerGrid.step)
         assertTrue(powerGrid.phase is BureaucracyPhase)
 
-        // lowest power plant should be removed
-        assertEquals(listOf(9, 10, 11, 13), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
-        assertEquals(20, powerGrid.powerPlantMarket.deck.remaining)
+        // lowest power plant should be removed and also the all power plants lower than 9
+        assertEquals(listOf(10, 11, 13, 21), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
+        assertEquals(19, powerGrid.powerPlantMarket.deck.remaining)
     }
 }
