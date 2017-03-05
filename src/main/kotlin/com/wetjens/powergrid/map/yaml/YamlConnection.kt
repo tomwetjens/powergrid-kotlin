@@ -1,5 +1,6 @@
 package com.wetjens.powergrid.map.yaml
 
+import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.Connection
 
 class YamlConnection() : Connection {
@@ -26,4 +27,21 @@ class YamlConnection() : Connection {
     override fun toString(): String {
         return "$from->($cost)->$to"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        return when (other) {
+            is Connection -> to == other.to && from == other.from && cost == other.cost
+            else -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = from.hashCode()
+        result = 31 * result + to.hashCode()
+        result = 31 * result + cost
+        return result
+    }
+
 }

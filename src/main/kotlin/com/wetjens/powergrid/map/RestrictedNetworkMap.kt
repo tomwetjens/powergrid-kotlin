@@ -18,6 +18,20 @@ class RestrictedNetworkMap(
 
         override fun toString(): String = base.toString()
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            return when (other) {
+                is PlayableArea -> other.base == base
+                is Area -> other == base
+                else -> false
+            }
+        }
+
+        override fun hashCode(): Int {
+            return base.hashCode()
+        }
+
     }
 
     private class PlayableCity(val base: City,
@@ -31,6 +45,19 @@ class RestrictedNetworkMap(
 
         override fun toString(): String = base.toString()
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            return when (other) {
+                is PlayableCity -> other.base == base
+                is City -> other == base
+                else -> false
+            }
+        }
+
+        override fun hashCode(): Int {
+            return base.hashCode()
+        }
     }
 
     private class PlayableConnection(val base: Connection,
@@ -40,6 +67,20 @@ class RestrictedNetworkMap(
         override val cost: Int = base.cost
 
         override fun toString(): String = base.toString()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            return when (other) {
+                is PlayableConnection -> other.base == base
+                is Area -> other == base
+                else -> false
+            }
+        }
+
+        override fun hashCode(): Int {
+            return base.hashCode()
+        }
     }
 
     private val playableAreas: Set<PlayableArea>
