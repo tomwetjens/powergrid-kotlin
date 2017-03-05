@@ -7,8 +7,7 @@ import com.wetjens.powergrid.resource.ResourceType
 /**
  * Bureaucracy phase in a game of Power Grid.
  */
-data class BureaucracyPhase(private val powerGrid: PowerGrid,
-                            private val nextPhase: (PowerGrid) -> PowerGrid,
+data class BureaucracyPhase(private val nextPhase: (PowerGrid) -> PowerGrid,
                             val players: List<Player>,
                             override val currentPlayer: Player = players.first()) : Phase {
 
@@ -87,7 +86,6 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
                 true -> nextPhase(finish(newPowerGrid))
                 false -> newPowerGrid.copy(
                         phase = BureaucracyPhase(
-                                powerGrid = powerGrid,
                                 players = playersThatCanPower,
                                 nextPhase = nextPhase))
             }
@@ -125,7 +123,7 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
         players[nextIndex]
     }
 
-    fun producePower(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
+    fun producePower(powerGrid: PowerGrid, powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
         val playerState = powerGrid.playerStates[currentPlayer]!!
 
         // player must have the power plants
@@ -161,7 +159,6 @@ data class BureaucracyPhase(private val powerGrid: PowerGrid,
             1 -> nextPhase(finish(newPowerGrid))
             else -> newPowerGrid.copy(
                     phase = copy(
-                            powerGrid = newPowerGrid,
                             players = players - currentPlayer,
                             currentPlayer = nextPlayer))
         }

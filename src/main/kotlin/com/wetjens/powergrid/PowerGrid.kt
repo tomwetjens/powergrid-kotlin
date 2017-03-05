@@ -134,7 +134,7 @@ data class PowerGrid constructor(
 
     fun producePower(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
         if (phase is BureaucracyPhase) {
-            return phase.producePower(powerPlants, resources)
+            return phase.producePower(this, powerPlants, resources)
         } else {
             throw IllegalStateException("not in bureaucracy phase")
         }
