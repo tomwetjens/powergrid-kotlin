@@ -59,7 +59,7 @@ data class PowerGrid constructor(
                         playerOrder: List<Player>,
                         powerPlantMarket: PowerPlantMarket) : this(
             map = map,
-            phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder),
+            phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder, nextPhase = PowerGrid::goToBuyResourcesPhase),
             players = players,
             playerOrder = playerOrder,
             powerPlantMarket = powerPlantMarket,
@@ -68,84 +68,28 @@ data class PowerGrid constructor(
     val currentPlayer: Player
         get() = phase.currentPlayer
 
+    val leadingPlayerNumberOfCitiesConnected: Int by lazy {
+        playerStates.keys
+                .map({ player ->
+                    cityStates.values
+                            .fold(0, { sum, cs ->
+                                sum + cs.connectedBy.filter { cb -> cb == player }.size
+                            })
+                })
+                .reduce(Math::max)
+    }
+
     fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant? = null): PowerGrid {
         if (phase is AuctionPhase) {
-            checkBid(phase.currentAuctioningPlayer, initialBid, replaces)
-
-            val newPowerPlantMarket = (powerPlantMarket - powerPlant).removeLowerOrEqual(leadingPlayerNumberOfCitiesConnected)
-
-            val newAuctionPhase = phase.startAuction(powerPlant, initialBid, replaces)
-
-            return if (newAuctionPhase.completed) {
-                // last player to auction, just buy it
-                val newPlayerStates = completePowerPlantPurchase(phase.currentAuctioningPlayer, powerPlant, initialBid, replaces)
-
-                val newPowerGrid = copy(playerStates = newPlayerStates, powerPlantMarket = newPowerPlantMarket)
-
-                when (round) {
-                    1 -> newPowerGrid.redeterminePlayerOrder()
-                    else -> newPowerGrid
-                }.goToBuyResourcesPhase()
-            } else {
-                copy(phase = newAuctionPhase, powerPlantMarket = newPowerPlantMarket)
-            }
+            return phase.startAuction(this, powerPlant, initialBid, replaces)
         } else {
             throw IllegalStateException("not in auction phase")
         }
     }
 
-    private fun checkBid(player: Player, bid: Int, replaces: PowerPlant?) {
-        val playerState = playerStates[player]!!
-
-        playerState.powerPlants.size < maxOwnedPowerPlants || replaces != null || throw IllegalArgumentException("must replace a power plant")
-
-        playerState.balance >= bid || throw IllegalArgumentException("balance too low")
-    }
-
-    private fun goToBuyResourcesPhase(): PowerGrid {
-        return copy(phase = BuyResourcesPhase(buyingPlayers = playerOrder.reversed(), resourceMarkets = resourceMarkets))
-    }
-
-    private fun redeterminePlayerOrder(): PowerGrid {
-        val newPlayerOrder = players.sortedWith(compareBy(
-                { player -> numberOfConnectedCities(player) },
-                { player ->
-                    playerStates[player]!!.highestPowerPlant?.cost ?: throw IllegalStateException("no power plant")
-                })).reversed()
-
-        return copy(playerOrder = newPlayerOrder)
-    }
-
-    private fun numberOfConnectedCities(player: Player): Int {
-        val numberConnected: Int = cityStates.values
-                .map { cityState ->
-                    cityState.connectedBy.filter { cb ->
-                        cb == player
-                    }.size
-                }
-                .reduce { sum, size -> sum + size }
-
-        return numberConnected
-    }
-
     fun passAuction(): PowerGrid {
         if (phase is AuctionPhase) {
-            round > 1 || throw IllegalStateException("cannot pass in first round")
-
-            val newAuctionPhase = phase.passAuction()
-
-            val newPowerGrid = copy(phase = newAuctionPhase)
-
-            return when (newAuctionPhase.completed) {
-                false -> newPowerGrid
-                else -> {
-                    when (newAuctionPhase.closedAuctions.isEmpty()) {
-                    // if no power plants are sold in phase, then throw out lowest and replace
-                        true -> newPowerGrid.copy(powerPlantMarket = powerPlantMarket - powerPlantMarket.actual[0])
-                        false -> newPowerGrid
-                    }.goToBuyResourcesPhase()
-                }
-            }
+            return phase.passAuction(this)
         } else {
             throw IllegalStateException("not in auction phase")
         }
@@ -153,9 +97,7 @@ data class PowerGrid constructor(
 
     fun raise(bid: Int, replaces: PowerPlant? = null): PowerGrid {
         if (phase is AuctionPhase) {
-            checkBid(phase.auction.currentBiddingPlayer, bid, replaces)
-
-            return copy(phase = phase.raise(bid, replaces))
+            return phase.raise(this, bid, replaces)
         } else {
             throw IllegalStateException("not in auction phase")
         }
@@ -163,34 +105,10 @@ data class PowerGrid constructor(
 
     fun passBid(): PowerGrid {
         if (phase is AuctionPhase) {
-            val newAuctionPhase = phase.passBid()
-
-            var newPlayerStates = playerStates
-
-            if (phase.auction.biddingPlayers.size == 2) {
-                // last player folded
-
-                val winningPlayer = phase.auction.nextBiddingPlayer
-                newPlayerStates = completePowerPlantPurchase(winningPlayer, phase.auction.powerPlant, phase.auction.currentBid, phase.auction.replaces)
-            }
-
-            return when (newAuctionPhase.completed) {
-                false -> copy(phase = newAuctionPhase, playerStates = newPlayerStates)
-                else -> {
-                    copy(phase = BuyResourcesPhase(buyingPlayers = playerOrder.reversed(), resourceMarkets = resourceMarkets),
-                            playerStates = newPlayerStates)
-                }
-            }
+            return phase.passBid(this)
         } else {
             throw IllegalStateException("not in auction phase")
         }
-    }
-
-    private fun completePowerPlantPurchase(player: Player, powerPlant: PowerPlant, bid: Int, replaces: PowerPlant?): Map<Player, PlayerState> {
-        val playerState = playerStates[player]
-        val newPlayerState = playerState!!.pay(bid).addPowerPlant(powerPlant, replaces)
-
-        return playerStates + Pair(player, newPlayerState)
     }
 
     fun buyResources(type: ResourceType, amount: Int): PowerGrid {
@@ -225,21 +143,6 @@ data class PowerGrid constructor(
         }
     }
 
-    private fun goToBureaucracyPhase(): PowerGrid {
-        return BureaucracyPhase.start(powerGrid = this, nextPhase = PowerGrid::goToAuctionPhase)
-    }
-
-    private fun goToAuctionPhase(): PowerGrid {
-        return redeterminePlayerOrder()
-                .copy(phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder))
-    }
-
-    private fun goToBuildPhase(): PowerGrid {
-        return copy(phase = BuildPhase(powerGrid = this,
-                buildingPlayers = playerOrder.reversed(),
-                nextPhase = PowerGrid::goToBureaucracyPhase))
-    }
-
     fun connectCity(city: City): PowerGrid {
         if (phase is BuildPhase) {
             return phase.connectCity(city)
@@ -264,14 +167,47 @@ data class PowerGrid constructor(
         }
     }
 
-    val leadingPlayerNumberOfCitiesConnected: Int by lazy {
-        playerStates.keys
-                .map({ player ->
-                    cityStates.values
-                            .fold(0, { sum, cs ->
-                                sum + cs.connectedBy.filter { cb -> cb == player }.size
-                            })
-                })
-                .reduce(Math::max)
+    fun redeterminePlayerOrder(): PowerGrid {
+        val newPlayerOrder = players.sortedWith(compareBy(
+                { player -> numberOfConnectedCities(player) },
+                { player ->
+                    playerStates[player]!!.highestPowerPlant?.cost ?: throw IllegalStateException("no power plant")
+                })).reversed()
+
+        return copy(playerOrder = newPlayerOrder)
+    }
+
+    private fun numberOfConnectedCities(player: Player): Int {
+        val numberConnected: Int = cityStates.values
+                .map { cityState ->
+                    cityState.connectedBy.filter { cb ->
+                        cb == player
+                    }.size
+                }
+                .reduce { sum, size -> sum + size }
+
+        return numberConnected
+    }
+
+    private fun goToAuctionPhase(): PowerGrid {
+        return redeterminePlayerOrder().copy(
+                phase = AuctionPhase(
+                        biddingOrder = players,
+                        auctioningPlayers = playerOrder,
+                        nextPhase = PowerGrid::goToBuyResourcesPhase))
+    }
+
+    private fun goToBuyResourcesPhase(): PowerGrid {
+        return copy(phase = BuyResourcesPhase(buyingPlayers = playerOrder.reversed(), resourceMarkets = resourceMarkets))
+    }
+
+    private fun goToBuildPhase(): PowerGrid {
+        return copy(phase = BuildPhase(powerGrid = this,
+                buildingPlayers = playerOrder.reversed(),
+                nextPhase = PowerGrid::goToBureaucracyPhase))
+    }
+
+    private fun goToBureaucracyPhase(): PowerGrid {
+        return BureaucracyPhase.start(powerGrid = this, nextPhase = PowerGrid::goToAuctionPhase)
     }
 }

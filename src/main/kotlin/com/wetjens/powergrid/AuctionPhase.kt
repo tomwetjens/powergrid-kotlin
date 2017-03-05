@@ -13,6 +13,7 @@ import com.wetjens.powergrid.powerplant.PowerPlant
  * If a player passes to start an auction, he cannot participate in any subsequent auctions started by other players.
  */
 data class AuctionPhase(
+        private val nextPhase: (PowerGrid) -> PowerGrid,
         val biddingOrder: List<Player>,
         val auctioningPlayers: List<Player>,
         val currentAuctioningPlayer: Player = auctioningPlayers.first(),
@@ -44,8 +45,13 @@ data class AuctionPhase(
      *
      * @param bid must be at minimum the cost of the power plant
      */
-    fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant?): AuctionPhase {
+    fun startAuction(powerGrid: PowerGrid, powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant?): PowerGrid {
         currentAuction == null || throw IllegalStateException("auction in progress")
+
+        checkBid(powerGrid, currentAuctioningPlayer, initialBid, replaces)
+
+        val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerPlant)
+                .removeLowerOrEqual(powerGrid.leadingPlayerNumberOfCitiesConnected)
 
         initialBid >= powerPlant.cost || throw IllegalArgumentException("bid too low")
 
@@ -60,36 +66,83 @@ data class AuctionPhase(
                 replaces = replaces,
                 currentBid = initialBid)
 
-        return when (auctioningPlayers.size) {
+        val newAuctionPhase = when (auctioningPlayers.size) {
             1 -> copy(auctioningPlayers = emptyList(), closedAuctions = closedAuctions + newAuction)
             else -> copy(currentAuction = newAuction)
         }
+
+        return if (newAuctionPhase.completed) {
+            // last player to auction, just buy it
+            val newPlayerStates = completePowerPlantPurchase(powerGrid, currentAuctioningPlayer, powerPlant, initialBid, replaces)
+
+            val newPowerGrid = powerGrid.copy(playerStates = newPlayerStates, powerPlantMarket = newPowerPlantMarket)
+
+            nextPhase(when (powerGrid.round) {
+                1 -> newPowerGrid.redeterminePlayerOrder()
+                else -> newPowerGrid
+            })
+        } else {
+            powerGrid.copy(phase = newAuctionPhase, powerPlantMarket = newPowerPlantMarket)
+        }
+    }
+
+    private fun checkBid(powerGrid: PowerGrid, player: Player, bid: Int, replaces: PowerPlant?) {
+        val playerState = powerGrid.playerStates[player]!!
+
+        playerState.powerPlants.size < powerGrid.maxOwnedPowerPlants || replaces != null || throw IllegalArgumentException("must replace a power plant")
+
+        playerState.balance >= bid || throw IllegalArgumentException("balance too low")
+    }
+
+    private fun completePowerPlantPurchase(powerGrid: PowerGrid, player: Player, powerPlant: PowerPlant, bid: Int, replaces: PowerPlant?): Map<Player, PlayerState> {
+        val playerState = powerGrid.playerStates[player]
+        val newPlayerState = playerState!!.pay(bid).addPowerPlant(powerPlant, replaces)
+
+        return powerGrid.playerStates + Pair(player, newPlayerState)
     }
 
     /**
      * Passes to start (if no auction is in progress) for the current player that is up for auction.
      */
-    fun passAuction(): AuctionPhase {
+    fun passAuction(powerGrid: PowerGrid): PowerGrid {
+        powerGrid.round > 1 || throw IllegalStateException("cannot pass in first round")
+
         currentAuction == null || throw IllegalStateException("auction in progress")
 
         val newAuctioningPlayers = auctioningPlayers - currentAuctioningPlayer
-        return copy(auctioningPlayers = newAuctioningPlayers, currentAuctioningPlayer = nextAuctioningPlayer, currentAuction = null)
+
+        val newAuctionPhase = copy(auctioningPlayers = newAuctioningPlayers, currentAuctioningPlayer = nextAuctioningPlayer, currentAuction = null)
+
+        val newPowerGrid = powerGrid.copy(phase = newAuctionPhase)
+
+        return when (newAuctionPhase.completed) {
+            false -> newPowerGrid
+            else -> {
+                nextPhase(when (newAuctionPhase.closedAuctions.isEmpty()) {
+                    // if no power plants are sold in phase, then throw out lowest and replace
+                    true -> newPowerGrid.copy(powerPlantMarket = powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
+                    false -> newPowerGrid
+                })
+            }
+        }
     }
 
     /**
      * Raises the bid for the current player that is bidding in the auction.
      */
-    fun raise(bid: Int, replaces: PowerPlant? = null): AuctionPhase {
-        return copy(currentAuction = auction.raise(bid, replaces))
+    fun raise(powerGrid: PowerGrid, bid: Int, replaces: PowerPlant? = null): PowerGrid {
+        checkBid(powerGrid, auction.currentBiddingPlayer, bid, replaces)
+
+        return powerGrid.copy(phase = copy(currentAuction = auction.raise(bid, replaces)))
     }
 
     /**
      * Folds the current player that is bidding in the auction.
      */
-    fun passBid(): AuctionPhase {
+    fun passBid(powerGrid: PowerGrid): PowerGrid {
         val newAuction = auction.pass()
 
-        return when (newAuction.closed) {
+        val newAuctionPhase = when (newAuction.closed) {
             true -> copy(auctioningPlayers = auctioningPlayers - auction.nextBiddingPlayer,
                     currentAuctioningPlayer = when (auction.nextBiddingPlayer) {
                         currentAuctioningPlayer -> nextAuctioningPlayer
@@ -98,6 +151,23 @@ data class AuctionPhase(
                     closedAuctions = closedAuctions + auction,
                     currentAuction = null)
             else -> copy(currentAuction = newAuction)
+        }
+
+        var newPlayerStates = powerGrid.playerStates
+
+        if (auction.biddingPlayers.size == 2) {
+            // last player folded
+
+            val winningPlayer = auction.nextBiddingPlayer
+            newPlayerStates = completePowerPlantPurchase(powerGrid, winningPlayer, auction.powerPlant, auction.currentBid, auction.replaces)
+        }
+
+        return when (newAuctionPhase.completed) {
+            false -> powerGrid.copy(phase = newAuctionPhase, playerStates = newPlayerStates)
+            true -> {
+                val newPowerGrid = powerGrid.copy(playerStates = newPlayerStates)
+                nextPhase(newPowerGrid)
+            }
         }
     }
 
