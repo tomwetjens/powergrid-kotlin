@@ -18,9 +18,30 @@ data class PowerGrid constructor(
         val players: List<Player>,
         val playerOrder: List<Player>,
         val playerStates: Map<Player, PlayerState> = players.associate { player -> Pair(player, PlayerState()) },
-        val maxOwnedPowerPlants: Int = 3,
+        val maxOwnedPowerPlants: Int = when (players.size) {
+            2 -> 4
+            else -> 3
+        },
+        val gameEndsOnNumberOfCities: Int = when (players.size) {
+            2 -> 21
+            5 -> 15
+            6 -> 14
+            else -> 17
+        },
         val powerPlantMarket: PowerPlantMarket,
         val resourceMarkets: ResourceMarkets) {
+
+    init {
+        players.size <= 6 || throw IllegalArgumentException("too many players")
+
+        val playAreas = when (players.size) {
+            2 -> 3
+            6 -> 5
+            else -> 6
+        }
+
+        map.areas.size == playAreas || throw IllegalArgumentException("must play $playAreas areas")
+    }
 
     /**
      * Initializes a game of Power Grid.
