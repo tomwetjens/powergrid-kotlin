@@ -58,7 +58,8 @@ data class BuildPhase(
         val newPlayerState = playerState.pay(cost)
         val newCityState = cityState.connect(currentBuildingPlayer)
 
-        val newPowerPlantMarket = powerGrid.powerPlantMarket.removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
+        val newPowerPlantMarket = powerGrid.powerPlantMarket
+                .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
 
         return powerGrid.copy(
                 cityStates = powerGrid.cityStates + Pair(city, newCityState),
@@ -80,15 +81,25 @@ data class BuildPhase(
     }
 
     private fun finish(powerGrid: PowerGrid): PowerGrid {
-        return BureaucracyPhase.start(when (powerGrid.step == 1
-                && powerGrid.numberOfCitiesConnectedByLeadingPlayer >= powerGrid.step2StartsOnNumberOfCities) {
-            true -> {
-                val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
-                        .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
+        val goingToStep2 = powerGrid.step == 1 && powerGrid.numberOfCitiesConnectedByLeadingPlayer >= powerGrid.step2StartsOnNumberOfCities
 
-                powerGrid.copy(step = 2, powerPlantMarket = newPowerPlantMarket)
+        return BureaucracyPhase.start(if (goingToStep2) {
+            val newPowerPlantMarket = powerGrid.powerPlantMarket
+                    .removeLowestAndReplace()
+                    .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
+
+            powerGrid.copy(step = 2, powerPlantMarket = newPowerPlantMarket)
+        } else {
+            val goingToStep3 = powerGrid.step == 2 && powerGrid.powerPlantMarket.future.isEmpty()
+
+            if (goingToStep3) {
+                val newPowerPlantMarket = powerGrid.powerPlantMarket
+                        .removeLowestWithoutReplacement()
+
+                powerGrid.copy(step = 3, powerPlantMarket = newPowerPlantMarket)
+            } else {
+                powerGrid
             }
-            false -> powerGrid
         })
     }
 

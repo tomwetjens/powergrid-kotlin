@@ -90,8 +90,18 @@ data class BureaucracyPhase(val players: List<Player>,
         private fun finish(powerGrid: PowerGrid): PowerGrid {
             var newPowerGrid = addNewResources(powerGrid)
 
-            newPowerGrid = newPowerGrid.copy(
-                    powerPlantMarket = newPowerGrid.powerPlantMarket.removeHighestFuture())
+            var newPowerPlantMarket = when (newPowerGrid.step) {
+                3 -> newPowerGrid.powerPlantMarket.removeLowestAndReplace()
+                else -> newPowerGrid.powerPlantMarket.removeHighestFuture()
+            }
+
+            val goingToStep3 = powerGrid.step == 2 && newPowerPlantMarket.future.isEmpty()
+
+            if (goingToStep3) {
+                newPowerPlantMarket = newPowerPlantMarket.removeLowestWithoutReplacement()
+            }
+
+            newPowerGrid = newPowerGrid.copy(powerPlantMarket = newPowerPlantMarket)
 
             return AuctionPhase.start(newPowerGrid)
         }

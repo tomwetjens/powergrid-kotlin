@@ -170,23 +170,25 @@ data class AuctionPhase(val biddingOrder: List<Player>,
     }
 
     private fun finish(powerGrid: PowerGrid): PowerGrid {
-        val newStep = if (powerGrid.step == 2 && powerGrid.powerPlantMarket.future.isEmpty()) 3 else powerGrid.step
-
-        val newPowerGrid = when (powerGrid.round) {
+        var newPowerGrid = when (powerGrid.round) {
             1 -> powerGrid.redeterminePlayerOrder()
             else -> powerGrid
         }
 
-        return BuyResourcesPhase.start(when (closedAuctions.isEmpty()) {
-        // if no power plants are sold in phase, then throw out lowest and replace
-            true -> newPowerGrid.copy(
-                    step = newStep,
-                    powerPlantMarket = newPowerGrid.powerPlantMarket - newPowerGrid.powerPlantMarket.actual[0])
-            false -> when (newPowerGrid.step) {
-                newStep -> newPowerGrid
-                else -> newPowerGrid.copy(step = newStep)
-            }
-        })
+        if (closedAuctions.isEmpty()) {
+            // if no power plants are sold in phase, then throw out lowest and replace
+            newPowerGrid = newPowerGrid.copy(powerPlantMarket = powerGrid.powerPlantMarket.removeLowestAndReplace())
+        }
+
+        val goingToStep3 = powerGrid.step == 2 && powerGrid.powerPlantMarket.future.isEmpty()
+
+        if (goingToStep3) {
+            newPowerGrid = newPowerGrid.copy(
+                    step = 3,
+                    powerPlantMarket = newPowerGrid.powerPlantMarket.removeLowestWithoutReplacement())
+        }
+
+        return BuyResourcesPhase.start(newPowerGrid)
     }
 
     /**

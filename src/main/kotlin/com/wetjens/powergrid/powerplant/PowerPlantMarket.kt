@@ -49,6 +49,10 @@ data class PowerPlantMarket private constructor(
             else -> deck.onTop
         }
 
+        return removeAndReplace(powerPlant, replacement)
+    }
+
+    private fun removeAndReplace(powerPlant: PowerPlant, replacement: PowerPlant?): PowerPlantMarket {
         val newActualAndFuture = (actual + future - powerPlant + replacement)
                 .filterNotNull()
                 .sortedBy(PowerPlant::cost)
@@ -103,6 +107,17 @@ data class PowerPlantMarket private constructor(
         } else {
             return this
         }
+    }
+
+    /**
+     * Removes lowest power plant from actual offering and replaces it with a new power plant drawn from the deck.
+     */
+    fun removeLowestAndReplace(): PowerPlantMarket {
+        return this - actual[0]
+    }
+
+    fun removeLowestWithoutReplacement(): PowerPlantMarket {
+        return removeAndReplace(actual[0], null)
     }
 
 }
