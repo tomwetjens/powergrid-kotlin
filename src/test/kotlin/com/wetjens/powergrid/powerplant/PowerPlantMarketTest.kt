@@ -28,24 +28,20 @@ class PowerPlantMarketTest {
         assertEquals(listOf(3, 6, 7, 8), market.actual.map(PowerPlant::cost))
         assertEquals(listOf(9, 10, 13, 20), market.future.map(PowerPlant::cost))
 
-        // empty out deck
-        (1..24).forEach { market -= market.actual[1] }
+        // empty out deck until only actual
+        (1..25).forEach { market -= market.actual[1] }
         assertEquals(0, market.deck.remaining)
 
-        assertEquals(listOf(3, 11, 39, 40), market.actual.map(PowerPlant::cost))
-        assertEquals(listOf(42, 44, 50, 96), market.future.map(PowerPlant::cost))
+        assertEquals(listOf(3, 39, 40, 42, 44, 50, 96), market.actual.map(PowerPlant::cost))
+        assertEquals(emptyList(), market.future.map(PowerPlant::cost))
 
         market -= market.actual[1]
-        assertEquals(listOf(3, 39, 40, 42), market.actual.map(PowerPlant::cost))
-        assertEquals(listOf(44, 50, 96), market.future.map(PowerPlant::cost))
+        assertEquals(listOf(3, 40, 42, 44, 50, 96), market.actual.map(PowerPlant::cost))
+        assertEquals(emptyList(), market.future.map(PowerPlant::cost))
 
         market -= market.actual[1]
-        assertEquals(listOf(3, 40, 42, 44), market.actual.map(PowerPlant::cost))
-        assertEquals(listOf(50, 96), market.future.map(PowerPlant::cost))
-
-        market -= market.actual[1]
-        assertEquals(listOf(3, 42, 44, 50), market.actual.map(PowerPlant::cost))
-        assertEquals(listOf(96), market.future.map(PowerPlant::cost))
+        assertEquals(listOf(3, 42, 44, 50, 96), market.actual.map(PowerPlant::cost))
+        assertEquals(emptyList(), market.future.map(PowerPlant::cost))
 
         market -= market.actual[1]
         assertEquals(listOf(3, 44, 50, 96), market.actual.map(PowerPlant::cost))
@@ -81,7 +77,7 @@ class PowerPlantMarketTest {
         assertEquals(emptyList(), market.future.map(PowerPlant::cost))
 
         market -= market.actual[0]
-        assertEquals(listOf(4, 5, 6, 7, 8, 9, 10, 13), market.actual.map(PowerPlant::cost))
+        assertEquals(listOf(4, 5, 6, 7, 8, 9, 10, 33), market.actual.map(PowerPlant::cost))
         assertEquals(emptyList(), market.future.map(PowerPlant::cost))
 
         // etc.

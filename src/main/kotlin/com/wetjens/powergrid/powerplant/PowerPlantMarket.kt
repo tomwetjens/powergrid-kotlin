@@ -19,7 +19,9 @@ data class PowerPlantMarket private constructor(
         /**
          * The future offering.
          */
-        val future: List<PowerPlant>) {
+        val future: List<PowerPlant>,
+
+        private val numberOfDrawsUntilOnlyActual: Int) {
 
     /**
      * Initializes a default market with a shuffled deck for the given number of players,
@@ -27,9 +29,10 @@ data class PowerPlantMarket private constructor(
      */
     constructor(random: Random, numberOfPlayers: Int) : this(PowerPlantDeck(random, numberOfPlayers))
 
-    private constructor(deck: PowerPlantDeck) : this(deck,
-            deck.powerPlants.values.take(4),
-            deck.powerPlants.values.take(8).takeLast(4))
+    private constructor(deck: PowerPlantDeck) : this(deck = deck,
+            actual = deck.powerPlants.values.take(4),
+            future = deck.powerPlants.values.take(8).takeLast(4),
+            numberOfDrawsUntilOnlyActual = deck.remaining + 1)
 
     /**
      * Takes a power plant from the actual offering and replaces it with one from the deck.
@@ -41,7 +44,11 @@ data class PowerPlantMarket private constructor(
     }
 
     private fun removeAndReplace(powerPlant: PowerPlant): PowerPlantMarket {
-        val replacement = deck.onTop
+        val replacement = when (numberOfDrawsUntilOnlyActual) {
+            1 -> null
+            else -> deck.onTop
+        }
+
         val newActualAndFuture = (actual + future - powerPlant + replacement)
                 .filterNotNull()
                 .sortedBy(PowerPlant::cost)
@@ -49,16 +56,26 @@ data class PowerPlantMarket private constructor(
         val newActual = newActualAndFuture.take(Math.min(actual.size, newActualAndFuture.size))
         val newFuture = newActualAndFuture.takeLast(newActualAndFuture.size - newActual.size)
 
-        val newDeck = -deck
+        val newMarket = copy(
+                actual = newActual,
+                future = newFuture,
+                numberOfDrawsUntilOnlyActual = Math.max(0, numberOfDrawsUntilOnlyActual - 1))
 
-        return copy(deck = newDeck, actual = newActual, future = newFuture)
+        return when (numberOfDrawsUntilOnlyActual) {
+            1 -> newMarket.onlyActual()
+            else -> newMarket.copy(deck = -deck)
+        }
     }
 
     /**
      * Moves everything in the future offering to the actual offering.
      */
     fun onlyActual(): PowerPlantMarket {
-        return copy(actual = actual + future, future = emptyList())
+        return copy(
+                deck = deck.shuffle(),
+                actual = actual + future,
+                future = emptyList(),
+                numberOfDrawsUntilOnlyActual = 0)
     }
 
     /**

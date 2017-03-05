@@ -13,6 +13,7 @@ data class PowerPlantDeck private constructor(
          */
         val powerPlants: SortedMap<Int, PowerPlant>,
 
+        private val random: Random,
         private val deck: List<PowerPlant>) {
 
     private object Constants {
@@ -72,8 +73,9 @@ data class PowerPlantDeck private constructor(
      * Initializes a shuffled deck for the default set of power plants and the given number of players,
      * with `3-10` removed and `13` on top.
      */
-    constructor(random: Random, numberOfPlayers: Int) : this(Constants.defaultPowerPlants,
-            listOf(Constants.defaultPowerPlants[13]!!) + Constants.defaultPowerPlants.filterNot { entry ->
+    constructor(random: Random, numberOfPlayers: Int) : this(powerPlants = Constants.defaultPowerPlants,
+            random = random,
+            deck = listOf(Constants.defaultPowerPlants[13]!!) + Constants.defaultPowerPlants.filterNot { entry ->
                 val (cost) = entry
                 cost in 3..10 || cost == 13
             }.values.toList()
@@ -110,6 +112,10 @@ data class PowerPlantDeck private constructor(
         !deck.contains(powerPlant) || throw IllegalArgumentException("deck already contains")
 
         return copy(deck = deck.plus(powerPlant))
+    }
+
+    fun shuffle(): PowerPlantDeck {
+        return copy(deck = deck.shuffle(random))
     }
 
 }
