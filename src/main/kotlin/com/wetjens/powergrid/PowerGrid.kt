@@ -102,20 +102,7 @@ data class PowerGrid constructor(
 
     fun buyResources(type: ResourceType, amount: Int): PowerGrid {
         if (phase is BuyResourcesPhase) {
-            val cost = resourceMarkets[type].calculateCost(amount)
-
-            val playerState = playerStates[phase.currentBuyingPlayer]!!
-            playerState.balance >= cost || throw IllegalArgumentException("balance too low")
-
-            val newPlayerState = playerState
-                    .pay(cost)
-                    .addResource(type, amount)
-
-            val newBuyResourcesPhase = phase.buy(type, amount)
-
-            return copy(phase = newBuyResourcesPhase,
-                    resourceMarkets = newBuyResourcesPhase.resourceMarkets,
-                    playerStates = playerStates + Pair(phase.currentBuyingPlayer, newPlayerState))
+            return phase.buy(this, type, amount)
         } else {
             throw IllegalStateException("not in buy resources phase")
         }
@@ -123,10 +110,7 @@ data class PowerGrid constructor(
 
     fun passBuyResources(): PowerGrid {
         if (phase is BuyResourcesPhase) {
-            return when (phase.buyingPlayers.size) {
-                1 -> goToBuildPhase()
-                else -> copy(phase = phase.pass())
-            }
+            return phase.pass(this)
         } else {
             throw IllegalStateException("not in buy resources phase")
         }
@@ -187,7 +171,9 @@ data class PowerGrid constructor(
     }
 
     private fun goToBuyResourcesPhase(): PowerGrid {
-        return copy(phase = BuyResourcesPhase(buyingPlayers = playerOrder.reversed(), resourceMarkets = resourceMarkets))
+        return copy(phase = BuyResourcesPhase(
+                buyingPlayers = playerOrder.reversed(),
+                nextPhase = PowerGrid::goToBuildPhase))
     }
 
     private fun goToBuildPhase(): PowerGrid {
