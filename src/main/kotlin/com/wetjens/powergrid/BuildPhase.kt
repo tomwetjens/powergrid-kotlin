@@ -25,7 +25,7 @@ data class BuildPhase(
     }
 
     fun connectCity(powerGrid: PowerGrid, city: City): PowerGrid {
-        powerGrid.map.cities.contains(city) || throw IllegalArgumentException("city not playable")
+        powerGrid.map.cities.contains(city) || throw IllegalArgumentException("city $city not playable")
 
         val playerState = powerGrid.playerStates[currentBuildingPlayer]!!
         val cityState = powerGrid.cityStates[city]!!
@@ -80,7 +80,8 @@ data class BuildPhase(
     }
 
     private fun finish(powerGrid: PowerGrid): PowerGrid {
-        return BureaucracyPhase.start(when (powerGrid.step == 1 && powerGrid.numberOfCitiesConnectedByLeadingPlayer >= 7) {
+        return BureaucracyPhase.start(when (powerGrid.step == 1
+                && powerGrid.numberOfCitiesConnectedByLeadingPlayer >= powerGrid.step2StartsOnNumberOfCities) {
             true -> {
                 val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerGrid.powerPlantMarket.actual[0])
                         .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)

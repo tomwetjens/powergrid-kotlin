@@ -62,7 +62,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
         val newPowerPlantMarket = (powerGrid.powerPlantMarket - powerPlant)
                 .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
 
-        initialBid >= powerPlant.cost || throw IllegalArgumentException("bid too low")
+        initialBid >= powerPlant.cost || throw IllegalArgumentException("bid must be >= ${powerPlant.cost}")
 
         val biddingPlayers = biddingOrder.filter({ player -> auctioningPlayers.contains(player) })
         // get next player clockwise from current auctioning player

@@ -22,6 +22,11 @@ data class PowerGrid constructor(
             2 -> 4
             else -> 3
         },
+        val step2StartsOnNumberOfCities: Int = when (players.size) {
+            2 -> 10
+            6 -> 6
+            else -> 7
+        },
         val gameEndsOnNumberOfCities: Int = when (players.size) {
             2 -> 21
             5 -> 15

@@ -50,4 +50,8 @@ interface NetworkMap {
         throw IllegalStateException("no path from $source to $target")
     }
 
+    fun restrict(areas: Set<Area>): NetworkMap {
+        return RestrictedNetworkMap(this, areas)
+    }
+
 }
