@@ -22,6 +22,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
 
         fun start(powerGrid: PowerGrid): PowerGrid {
             return powerGrid.redeterminePlayerOrder().copy(
+                    round = powerGrid.round + 1,
                     phase = AuctionPhase(
                             biddingOrder = powerGrid.players,
                             auctioningPlayers = powerGrid.playerOrder))

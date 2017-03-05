@@ -46,6 +46,7 @@ class BureaucracyPhaseTest {
                 .passConnectCity()
 
         assertTrue(powerGrid.phase is AuctionPhase)
+        assertEquals(2, powerGrid.round)
         assertEquals(player1, powerGrid.currentPlayer)
 
         assertEquals(57, powerGrid.playerStates[player3]!!.balance)
@@ -110,6 +111,7 @@ class BureaucracyPhaseTest {
         assertEquals(0, powerGrid.playerStates[player3]!!.resources[ResourceType.OIL] ?: 0)
 
         assertTrue(powerGrid.phase is AuctionPhase)
+        assertEquals(2, powerGrid.round)
     }
 
     @Test
@@ -148,6 +150,7 @@ class BureaucracyPhaseTest {
                         mapOf(Pair(ResourceType.OIL, 2)))
 
         assertTrue(powerGrid.phase is AuctionPhase)
+        assertEquals(2, powerGrid.round)
 
         // new resources placed into market
         assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].available)
@@ -232,6 +235,7 @@ class BureaucracyPhaseTest {
                         mapOf(Pair(ResourceType.OIL, 2)))
 
         assertTrue(powerGrid.phase is AuctionPhase)
+        assertEquals(2, powerGrid.round)
 
         // highest power plant from future is removed and added under the pile
         assertEquals(listOf(6, 7, 8, 9), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))

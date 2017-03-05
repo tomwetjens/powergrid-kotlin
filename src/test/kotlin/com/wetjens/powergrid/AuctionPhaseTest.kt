@@ -56,7 +56,7 @@ class AuctionPhaseTest {
         try {
             powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 2)
         } catch (e: IllegalArgumentException) {
-            assertEquals("bid too low", e.message)
+            assertEquals("bid must be >= 3", e.message)
             throw e
         }
     }
