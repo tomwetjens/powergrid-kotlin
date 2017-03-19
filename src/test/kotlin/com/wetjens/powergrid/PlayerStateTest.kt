@@ -73,7 +73,7 @@ class PlayerStateTest {
     }
 
     @Test
-    fun optimizePoweredCities() {
+    fun numberOfCitiesCanSupply() {
         val playerState = PlayerState(
                 powerPlants = listOf(coal2P1, oilCoal2P4, oil2P3),
                 resources = mapOf(Pair(ResourceType.COAL, 2), Pair(ResourceType.OIL, 2)))
