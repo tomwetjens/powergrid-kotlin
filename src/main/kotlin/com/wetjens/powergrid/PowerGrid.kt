@@ -1,5 +1,6 @@
 package com.wetjens.powergrid
 
+import com.wetjens.collections.shuffle
 import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.NetworkMap
 import com.wetjens.powergrid.powerplant.PowerPlant

@@ -61,10 +61,15 @@ data class BuildPhase(
         val newPowerPlantMarket = powerGrid.powerPlantMarket
                 .removeLowerOrEqual(powerGrid.numberOfCitiesConnectedByLeadingPlayer)
 
-        return powerGrid.copy(
+        val newPowerGrid = powerGrid.copy(
                 cityStates = powerGrid.cityStates + Pair(city, newCityState),
                 playerStates = powerGrid.playerStates + Pair(currentBuildingPlayer, newPlayerState),
                 powerPlantMarket = newPowerPlantMarket)
+
+        val numberOfConnectedCities = alreadyConnectedCities.size + 1
+
+        return if (numberOfConnectedCities >= powerGrid.gameEndsOnNumberOfCities)
+            EndedPhase.start(newPowerGrid) else newPowerGrid
     }
 
     fun passConnectCity(powerGrid: PowerGrid): PowerGrid {

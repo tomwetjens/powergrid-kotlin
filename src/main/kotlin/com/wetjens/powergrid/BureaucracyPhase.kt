@@ -1,6 +1,7 @@
 package com.wetjens.powergrid
 
 import com.wetjens.powergrid.powerplant.PowerPlant
+import com.wetjens.powergrid.powerplant.enoughResources
 import com.wetjens.powergrid.resource.Resource
 import com.wetjens.powergrid.resource.ResourceType
 
@@ -57,7 +58,7 @@ data class BureaucracyPhase(val players: List<Player>,
                             val available = playerState.storage[powerPlant]!!
                                     .filterKeys { type -> powerPlant.consumes.contains(type) }
                                     .values
-                                    .fold(0, { sum, stored -> sum + stored })
+                                    .sum()
 
                             powerPlant.requires <= available
                         }
@@ -142,9 +143,9 @@ data class BureaucracyPhase(val players: List<Player>,
             amount <= (playerState.resources[type] ?: 0) || throw IllegalArgumentException("player does not have $amount $type")
         }
 
-        hasEnoughResourcesToRun(powerPlants, resources) || throw IllegalArgumentException("not enough resources")
+        powerPlants.enoughResources(resources) || throw IllegalArgumentException("not enough resources")
 
-        val produced = powerPlants.fold(0, { sum, powerPlant -> sum + powerPlant.powers })
+        val produced = powerPlants.map(PowerPlant::powers).sum()
         val connected = powerGrid.numberOfConnectedCities(currentPlayer)
 
         val powers = Math.min(connected, produced)
@@ -169,36 +170,6 @@ data class BureaucracyPhase(val players: List<Player>,
                             currentPlayer = nextPlayer))
         }
     }
-
-    private fun hasEnoughResourcesToRun(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): Boolean {
-        // must be enough resources to run the power plants
-        // start with all power plants still requiring their defined amount of resources
-        val stillRequires = mutableMapOf<PowerPlant, Int>()
-        powerPlants.associateTo(stillRequires, { powerPlant -> Pair(powerPlant, powerPlant.requires) })
-
-        // spread resources across power plants to optimize
-        resources.forEach { resource ->
-            var (type, remaining) = resource
-
-            val powerPlantsThatConsume = powerPlants.filter { powerPlant -> powerPlant.consumes.contains(type) }
-
-            // try to fill the non-hybrid power plants first
-            val powerPlantsNonHybridFirst = powerPlantsThatConsume.sortedBy { powerPlant -> powerPlant.consumes.size }
-
-            powerPlantsNonHybridFirst.forEach { powerPlant ->
-                val requires = stillRequires[powerPlant]!!
-
-                val amount = Math.min(requires, remaining)
-                stillRequires[powerPlant] = requires - amount
-                remaining -= amount
-            }
-
-            remaining == 0 || throw IllegalArgumentException("too many resources")
-        }
-
-        return stillRequires.values.all { requires -> requires == 0 }
-    }
-
 
 }
 

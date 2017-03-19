@@ -1,7 +1,7 @@
 package com.wetjens.powergrid.powerplant
 
 import com.wetjens.powergrid.resource.ResourceType
-import com.wetjens.powergrid.shuffle
+import com.wetjens.collections.shuffle
 import java.util.*
 
 /**

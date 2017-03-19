@@ -1,4 +1,4 @@
-package com.wetjens.powergrid
+package com.wetjens.collections
 
 /**
  * Swaps two elements in a list.

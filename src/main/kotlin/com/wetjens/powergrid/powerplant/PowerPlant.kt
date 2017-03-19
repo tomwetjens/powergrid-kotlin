@@ -7,5 +7,9 @@ data class PowerPlant(
         val consumes: Set<ResourceType>,
         val requires: Int,
         val capacity: Int = requires * 2,
-        val powers: Int)
+        val powers: Int) {
 
+    override fun toString(): String {
+        return "($cost) ${requires}x$consumes=$powers"
+    }
+}

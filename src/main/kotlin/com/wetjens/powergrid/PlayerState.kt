@@ -1,8 +1,9 @@
 package com.wetjens.powergrid
 
+import com.wetjens.collections.combinations
 import com.wetjens.powergrid.powerplant.PowerPlant
+import com.wetjens.powergrid.powerplant.enoughResources
 import com.wetjens.powergrid.resource.ResourceType
-import java.util.*
 
 data class PlayerState(val balance: Int = 50,
                        val powerPlants: List<PowerPlant> = emptyList(),
@@ -106,6 +107,17 @@ data class PlayerState(val balance: Int = 50,
         amount <= resources[type] ?: 0 || throw IllegalArgumentException("not enough resources")
 
         return copy(resources = resources + Pair(type, resources[type]!! - amount))
+    }
+
+    /**
+     * Number of cities that, given the power plants and resources, this player can supply power to.
+     */
+    val numberOfCitiesCanSupply: Int by lazy {
+        powerPlants
+                .combinations()
+                .filter { combination -> combination.enoughResources(resources) }
+                .map { combination -> combination.map(PowerPlant::powers).sum() }
+                .max() ?: 0
     }
 
 }
