@@ -50,7 +50,7 @@ data class ConnectCityAction(val city: City) : Action {
             val numberOfConnectedCities = alreadyConnectedCities.size + 1
 
             return if (numberOfConnectedCities >= powerGrid.gameEndsOnNumberOfCities)
-                EndedPhase.start(newPowerGrid) else newPowerGrid
+                newPowerGrid.dispatch(EndAction()) else newPowerGrid
         }
     }
 }

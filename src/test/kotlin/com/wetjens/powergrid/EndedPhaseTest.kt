@@ -27,7 +27,7 @@ class EndedPhaseTest {
     fun winnerMostCitiesConnectedAndPowered() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
-        val endedPhase = EndedPhase.start(powerGrid.copy(
+        val endedPhase = powerGrid.copy(
                 cityStates = powerGrid.cityStates +
                         Pair(duesseldorf, CityState(connectedBy = setOf(player1))) +
                         Pair(essen, CityState(connectedBy = setOf(player2))) +
@@ -35,7 +35,7 @@ class EndedPhaseTest {
                 playerStates = powerGrid.playerStates +
                         Pair(player1, PlayerState(
                                 powerPlants = listOf(powerGrid.powerPlantMarket.deck.powerPlants[4]!!),
-                                resources = mapOf(Pair(ResourceType.COAL, 2)))))).phase as EndedPhase
+                                resources = mapOf(Pair(ResourceType.COAL, 2))))).dispatch(EndAction()).phase as EndedPhase
 
         assertEquals(player1, endedPhase.winner)
     }
@@ -44,7 +44,7 @@ class EndedPhaseTest {
     fun winnerMostCitiesPoweredButNotConnected() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
-        val endedPhase = EndedPhase.start(powerGrid.copy(
+        val endedPhase = powerGrid.copy(
                 cityStates = powerGrid.cityStates +
                         Pair(duesseldorf, CityState(connectedBy = setOf(player1))) +
                         Pair(essen, CityState(connectedBy = setOf(player2))) +
@@ -52,7 +52,7 @@ class EndedPhaseTest {
                 playerStates = powerGrid.playerStates +
                         Pair(player1, PlayerState(
                                 powerPlants = listOf(powerGrid.powerPlantMarket.deck.powerPlants[4]!!),
-                                resources = mapOf(Pair(ResourceType.COAL, 2)))))).phase as EndedPhase
+                                resources = mapOf(Pair(ResourceType.COAL, 2))))).dispatch(EndAction()).phase as EndedPhase
 
         assertEquals(player1, endedPhase.winner)
     }
@@ -61,11 +61,11 @@ class EndedPhaseTest {
     fun winnerBalance() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
-        val endedPhase = EndedPhase.start(powerGrid.copy(
+        val endedPhase = powerGrid.copy(
                 playerStates = powerGrid.playerStates +
                         Pair(player1, PlayerState(balance = 50)) +
                         Pair(player2, PlayerState(balance = 49)) +
-                        Pair(player3, PlayerState(balance = 48)))).phase as EndedPhase
+                        Pair(player3, PlayerState(balance = 48))).dispatch(EndAction()).phase as EndedPhase
 
         assertEquals(player1, endedPhase.winner)
     }
@@ -74,11 +74,11 @@ class EndedPhaseTest {
     fun winnerMostCitiesConnected() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
-        val endedPhase = EndedPhase.start(powerGrid.copy(
+        val endedPhase = powerGrid.copy(
                 cityStates = powerGrid.cityStates +
                         Pair(duesseldorf, CityState(connectedBy = setOf(player1))) +
                         Pair(essen, CityState(connectedBy = setOf(player1))) +
-                        Pair(muenster, CityState(connectedBy = setOf(player2))))).phase as EndedPhase
+                        Pair(muenster, CityState(connectedBy = setOf(player2)))).dispatch(EndAction()).phase as EndedPhase
 
         assertEquals(player1, endedPhase.winner)
     }

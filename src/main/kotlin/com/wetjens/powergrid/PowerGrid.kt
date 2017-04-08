@@ -3,10 +3,8 @@ package com.wetjens.powergrid
 import com.wetjens.collections.shuffle
 import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.NetworkMap
-import com.wetjens.powergrid.powerplant.PowerPlant
 import com.wetjens.powergrid.powerplant.PowerPlantMarket
 import com.wetjens.powergrid.resource.ResourceMarkets
-import com.wetjens.powergrid.resource.ResourceType
 import java.util.*
 import kotlin.comparisons.compareBy
 
