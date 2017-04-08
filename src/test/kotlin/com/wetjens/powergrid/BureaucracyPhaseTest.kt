@@ -32,18 +32,18 @@ class BureaucracyPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
-                .passBid() // player2
-                .passBid() // player1
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
-                .passBid() // player 1
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
-                .passConnectCity()
-                .passConnectCity()
-                .passConnectCity()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // player3
+                .dispatch(PassBidAction()) // player2
+                .dispatch(PassBidAction()) // player1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // player2
+                .dispatch(PassBidAction()) // player 1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // player1
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
 
         assertTrue(powerGrid.phase is AuctionPhase)
         assertEquals(2, powerGrid.round)
@@ -59,24 +59,24 @@ class BureaucracyPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
-                .passBid() // player2
-                .passBid() // player1
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
-                .passBid() // player 1
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
-                .buyResources(ResourceType.OIL, 2) // player3
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player2
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player1
-                .passBuyResources()
-                .connectCity(duesseldorf) // player3
-                .passConnectCity()
-                .connectCity(essen) // player2
-                .passConnectCity()
-                .connectCity(muenster) // player1
-                .passConnectCity()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // player3
+                .dispatch(PassBidAction()) // player2
+                .dispatch(PassBidAction()) // player1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // player2
+                .dispatch(PassBidAction()) // player 1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // player1
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2)) // player3
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player2
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player1
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(ConnectCityAction((duesseldorf))) // player3
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((essen))) // player2
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((muenster))) // player1
+                .dispatch(PassConnectCityAction())
 
         assertTrue(powerGrid.phase is BureaucracyPhase)
         assertEquals(31, powerGrid.playerStates[player3]!!.balance)
@@ -87,25 +87,25 @@ class BureaucracyPhaseTest {
         assertEquals(16, powerGrid.resourceMarkets[ResourceType.OIL].available)
 
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.producePower(
+        powerGrid = powerGrid.dispatch(ProducePowerAction(
                 setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
-                mapOf(Pair(ResourceType.COAL, 2)))
+                mapOf(Pair(ResourceType.COAL, 2))))
 
         assertEquals(54, powerGrid.playerStates[player1]!!.balance)
         assertEquals(0, powerGrid.playerStates[player1]!!.resources[ResourceType.COAL] ?: 0)
 
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.producePower(
+        powerGrid = powerGrid.dispatch(ProducePowerAction(
                 setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
-                mapOf(Pair(ResourceType.COAL, 2)))
+                mapOf(Pair(ResourceType.COAL, 2))))
 
         assertEquals(56, powerGrid.playerStates[player2]!!.balance)
         assertEquals(0, powerGrid.playerStates[player2]!!.resources[ResourceType.COAL] ?: 0)
 
         assertEquals(player3, powerGrid.currentPlayer)
-        powerGrid = powerGrid.producePower(
+        powerGrid = powerGrid.dispatch(ProducePowerAction(
                 setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
-                mapOf(Pair(ResourceType.OIL, 2)))
+                mapOf(Pair(ResourceType.OIL, 2))))
 
         assertEquals(53, powerGrid.playerStates[player3]!!.balance)
         assertEquals(0, powerGrid.playerStates[player3]!!.resources[ResourceType.OIL] ?: 0)
@@ -119,35 +119,35 @@ class BureaucracyPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
-                .passBid() // player2
-                .passBid() // player1
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
-                .passBid() // player 1
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
-                .buyResources(ResourceType.OIL, 2) // player3
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player2
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player1
-                .passBuyResources()
-                .connectCity(duesseldorf) // player3
-                .passConnectCity()
-                .connectCity(essen) // player2
-                .passConnectCity()
-                .connectCity(muenster) // player1
-                .passConnectCity()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // player3
+                .dispatch(PassBidAction()) // player2
+                .dispatch(PassBidAction()) // player1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // player2
+                .dispatch(PassBidAction()) // player 1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // player1
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2)) // player3
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player2
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player1
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(ConnectCityAction((duesseldorf))) // player3
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((essen))) // player2
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((muenster))) // player1
+                .dispatch(PassConnectCityAction())
 
         powerGrid = powerGrid
-                .producePower(
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.COAL, 2)))
-                .producePower(
+                        mapOf(Pair(ResourceType.COAL, 2))))
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.COAL, 2)))
-                .producePower(
+                        mapOf(Pair(ResourceType.COAL, 2))))
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.OIL, 2)))
+                        mapOf(Pair(ResourceType.OIL, 2))))
 
         assertTrue(powerGrid.phase is AuctionPhase)
         assertEquals(2, powerGrid.round)
@@ -162,33 +162,33 @@ class BureaucracyPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
-                .passBid() // player2
-                .passBid() // player1
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
-                .passBid() // player 1
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
-                .buyResources(ResourceType.OIL, 2) // player3
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player2
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player1
-                .passBuyResources()
-                .connectCity(duesseldorf) // player3
-                .passConnectCity()
-                .connectCity(essen) // player2
-                .passConnectCity()
-                .connectCity(muenster) // player1
-                .passConnectCity()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // player3
+                .dispatch(PassBidAction()) // player2
+                .dispatch(PassBidAction()) // player1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // player2
+                .dispatch(PassBidAction()) // player 1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // player1
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2)) // player3
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player2
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player1
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(ConnectCityAction((duesseldorf))) // player3
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((essen))) // player2
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((muenster))) // player1
+                .dispatch(PassConnectCityAction())
 
         assertTrue(powerGrid.phase is BureaucracyPhase)
         assertEquals(31, powerGrid.playerStates[player3]!!.balance)
         assertEquals(34, powerGrid.playerStates[player2]!!.balance)
         assertEquals(32, powerGrid.playerStates[player1]!!.balance)
 
-        powerGrid = powerGrid.producePower(emptySet(), emptyMap())
-        powerGrid = powerGrid.producePower(emptySet(), emptyMap())
-        powerGrid = powerGrid.producePower(emptySet(), emptyMap())
+        powerGrid = powerGrid.dispatch(ProducePowerAction(emptySet(), emptyMap()))
+        powerGrid = powerGrid.dispatch(ProducePowerAction(emptySet(), emptyMap()))
+        powerGrid = powerGrid.dispatch(ProducePowerAction(emptySet(), emptyMap()))
 
         assertEquals(42, powerGrid.playerStates[player1]!!.balance)
         assertEquals(44, powerGrid.playerStates[player2]!!.balance)
@@ -204,35 +204,35 @@ class BureaucracyPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // player3
-                .passBid() // player2
-                .passBid() // player1
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // player2
-                .passBid() // player 1
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // player1
-                .buyResources(ResourceType.OIL, 2) // player3
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player2
-                .passBuyResources()
-                .buyResources(ResourceType.COAL, 2) // player1
-                .passBuyResources()
-                .connectCity(duesseldorf) // player3
-                .passConnectCity()
-                .connectCity(essen) // player2
-                .passConnectCity()
-                .connectCity(muenster) // player1
-                .passConnectCity()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // player3
+                .dispatch(PassBidAction()) // player2
+                .dispatch(PassBidAction()) // player1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // player2
+                .dispatch(PassBidAction()) // player 1
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // player1
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2)) // player3
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player2
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(BuyResourcesAction(ResourceType.COAL, 2)) // player1
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(ConnectCityAction((duesseldorf))) // player3
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((essen))) // player2
+                .dispatch(PassConnectCityAction())
+                .dispatch(ConnectCityAction((muenster))) // player1
+                .dispatch(PassConnectCityAction())
 
         powerGrid = powerGrid
-                .producePower(
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player1]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.COAL, 2)))
-                .producePower(
+                        mapOf(Pair(ResourceType.COAL, 2))))
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player2]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.COAL, 2)))
-                .producePower(
+                        mapOf(Pair(ResourceType.COAL, 2))))
+                .dispatch(ProducePowerAction(
                         setOf(powerGrid.playerStates[player3]!!.powerPlants[0]),
-                        mapOf(Pair(ResourceType.OIL, 2)))
+                        mapOf(Pair(ResourceType.OIL, 2))))
 
         assertTrue(powerGrid.phase is AuctionPhase)
         assertEquals(2, powerGrid.round)

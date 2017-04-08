@@ -26,12 +26,12 @@ class BuyResourcesPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
 
         assertTrue(powerGrid.phase is BuyResourcesPhase)
         assertEquals(listOf(player3, player2, player1), (powerGrid.phase as BuyResourcesPhase).buyingPlayers)
@@ -42,27 +42,27 @@ class BuyResourcesPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // 2 oil
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // 2 coal
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // 2 coal,oil
 
         assertEquals(player3, powerGrid.currentPlayer)
-        powerGrid = powerGrid.buyResources(ResourceType.OIL, 4).passBuyResources()
+        powerGrid = powerGrid.dispatch(BuyResourcesAction(ResourceType.OIL, 4)).dispatch(PassBuyResourcesAction())
 
         assertEquals(14, powerGrid.resourceMarkets[ResourceType.OIL].available)
         assertEquals(34, powerGrid.playerStates[player3]!!.balance)
 
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.buyResources(ResourceType.COAL, 4).passBuyResources()
+        powerGrid = powerGrid.dispatch(BuyResourcesAction(ResourceType.COAL, 4)).dispatch(PassBuyResourcesAction())
 
         assertEquals(20, powerGrid.resourceMarkets[ResourceType.COAL].available)
         assertEquals(41, powerGrid.playerStates[player2]!!.balance)
 
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.buyResources(ResourceType.COAL, 4).passBuyResources()
+        powerGrid = powerGrid.dispatch(BuyResourcesAction(ResourceType.COAL, 4)).dispatch(PassBuyResourcesAction())
 
         assertEquals(16, powerGrid.resourceMarkets[ResourceType.COAL].available)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
@@ -75,12 +75,12 @@ class BuyResourcesPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // 2 oil
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // 2 coal
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // 2 coal,oil
 
         assertEquals(player3, powerGrid.currentPlayer)
         assertEquals(47, powerGrid.playerStates[player3]!!.balance)
@@ -90,7 +90,7 @@ class BuyResourcesPhaseTest {
         assertEquals(20, powerGrid.playerStates[player3]!!.balance)
 
         try {
-            powerGrid.buyResources(ResourceType.OIL, 6) // costs 21
+            powerGrid.dispatch(BuyResourcesAction(ResourceType.OIL, 6)) // costs 21
             fail("must throw because balance too low")
         } catch (e: IllegalArgumentException) {
             // expected
@@ -103,17 +103,17 @@ class BuyResourcesPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // 2 oil
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // 2 coal
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // 2 coal,oil
 
         assertEquals(2, powerGrid.resourceMarkets[ResourceType.URANIUM].available)
 
         try {
-            powerGrid.buyResources(ResourceType.URANIUM, 3)
+            powerGrid.dispatch(BuyResourcesAction(ResourceType.URANIUM, 3))
             fail("must throw because not enough available")
         } catch (e: IllegalArgumentException) {
             // expected
@@ -126,18 +126,18 @@ class BuyResourcesPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3) // 2 oil
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4) // 2 coal
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5) // 2 coal,oil
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3)) // 2 oil
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4)) // 2 coal
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5)) // 2 coal,oil
 
         // should be able to store twice the amount it requires
-        powerGrid = powerGrid.buyResources(ResourceType.OIL, 4)
+        powerGrid = powerGrid.dispatch(BuyResourcesAction(ResourceType.OIL, 4))
 
         try {
-            powerGrid.buyResources(ResourceType.OIL, 1)
+            powerGrid.dispatch(BuyResourcesAction(ResourceType.OIL, 1))
             fail("must throw because max storage exceeded")
         } catch (e: IllegalArgumentException) {
             // expected

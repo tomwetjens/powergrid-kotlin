@@ -34,21 +34,21 @@ class BuildPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
 
-        powerGrid = powerGrid.connectCity(duesseldorf)
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(ConnectCityAction((duesseldorf)))
+                .dispatch(PassConnectCityAction())
 
         assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(37, powerGrid.playerStates[player3]!!.balance)
@@ -56,13 +56,13 @@ class BuildPhaseTest {
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player2, powerGrid.currentPlayer)
 
-        powerGrid = powerGrid.connectCity(essen)
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(ConnectCityAction((essen)))
+                .dispatch(PassConnectCityAction())
 
         assertEquals(setOf(player2), powerGrid.cityStates[essen]!!.connectedBy)
         assertEquals(36, powerGrid.playerStates[player2]!!.balance)
 
-        powerGrid = powerGrid.connectCity(muenster)
+        powerGrid = powerGrid.dispatch(ConnectCityAction((muenster)))
 
         assertEquals(setOf(player1), powerGrid.cityStates[muenster]!!.connectedBy)
         assertEquals(35, powerGrid.playerStates[player1]!!.balance)
@@ -73,21 +73,21 @@ class BuildPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
 
-        powerGrid = powerGrid.connectCity(duesseldorf)
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(ConnectCityAction((duesseldorf)))
+                .dispatch(PassConnectCityAction())
 
         assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(37, powerGrid.playerStates[player3]!!.balance)
@@ -96,7 +96,7 @@ class BuildPhaseTest {
         assertEquals(player2, powerGrid.currentPlayer)
 
         try {
-            powerGrid.connectCity(duesseldorf)
+            powerGrid.dispatch(ConnectCityAction((duesseldorf)))
             fail("should throw because city reached max connections")
         } catch (e: IllegalStateException) {
             assertEquals("reached max connections", e.message)
@@ -108,23 +108,23 @@ class BuildPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
         assertEquals(47, powerGrid.playerStates[player3]!!.balance)
 
         powerGrid = powerGrid
-                .connectCity(duesseldorf)
-                .connectCity(muenster)
+                .dispatch(ConnectCityAction((duesseldorf)))
+                .dispatch(ConnectCityAction((muenster)))
 
         assertEquals(19, powerGrid.playerStates[player3]!!.balance)
     }
@@ -134,24 +134,24 @@ class BuildPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         assertTrue(powerGrid.phase is BuildPhase)
         assertEquals(player3, powerGrid.currentPlayer)
         assertEquals(47, powerGrid.playerStates[player3]!!.balance)
 
-        powerGrid = powerGrid.connectCity(duesseldorf)
-                .connectCity(essen)
-                .connectCity(muenster)
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(ConnectCityAction((duesseldorf)))
+                .dispatch(ConnectCityAction((essen)))
+                .dispatch(ConnectCityAction((muenster)))
+                .dispatch(PassConnectCityAction())
 
         assertEquals(setOf(player3), powerGrid.cityStates[duesseldorf]!!.connectedBy)
         assertEquals(setOf(player3), powerGrid.cityStates[essen]!!.connectedBy)
@@ -173,32 +173,32 @@ class BuildPhaseTest {
         val cities = map.cities.toList()
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
-                .buyResources(ResourceType.OIL, 2)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         // player connects 7 cities
-        (0..6).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+        (0..6).forEach { i -> powerGrid = powerGrid.dispatch(ConnectCityAction((cities[i]))) }
 
         // should still be in step 1
         assertEquals(1, powerGrid.step)
 
-        powerGrid = powerGrid.passConnectCity()
+        powerGrid = powerGrid.dispatch(PassConnectCityAction())
         // other player connects 9 cities
-        (7..15).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+        (7..15).forEach { i -> powerGrid = powerGrid.dispatch(ConnectCityAction((cities[i]))) }
 
         // should still be in step 1
         assertEquals(1, powerGrid.step)
 
-        powerGrid = powerGrid.passConnectCity()
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
 
         // should be in step 2
         assertEquals(2, powerGrid.step)
@@ -233,48 +233,48 @@ class BuildPhaseTest {
         val cities = map.cities.toList()
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .passBid()
-                .passBid()
-                .passBid()
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 4)
-                .passBid()
-                .passBid()
-                .passBid()
-                .passBid()
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 5)
-                .passBid()
-                .passBid()
-                .passBid()
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 6)
-                .passBid()
-                .passBid()
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 7)
-                .passBid()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 4))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 5))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 6))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 7))
+                .dispatch(PassBidAction())
 
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 8)
-                .buyResources(ResourceType.OIL, 2)
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
-                .passBuyResources()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 8))
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         // player connects 6 cities
-        (0..5).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+        (0..5).forEach { i -> powerGrid = powerGrid.dispatch(ConnectCityAction((cities[i]))) }
 
         // should still be in step 1
         assertEquals(1, powerGrid.step)
 
-        powerGrid = powerGrid.passConnectCity()
-                .passConnectCity()
-                .passConnectCity()
-                .passConnectCity()
-                .passConnectCity()
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
 
         // should be in step 2
         assertEquals(2, powerGrid.step)
@@ -303,21 +303,21 @@ class BuildPhaseTest {
         val cities = map.cities.toList()
 
         powerGrid = powerGrid
-                .startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 4)
-                .buyResources(ResourceType.OIL, 2)
-                .passBuyResources()
-                .passBuyResources()
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 4))
+                .dispatch(BuyResourcesAction(ResourceType.OIL, 2))
+                .dispatch(PassBuyResourcesAction())
+                .dispatch(PassBuyResourcesAction())
 
         // player connects 10 cities
-        (0..9).forEach { i -> powerGrid = powerGrid.connectCity(cities[i]) }
+        (0..9).forEach { i -> powerGrid = powerGrid.dispatch(ConnectCityAction((cities[i]))) }
 
         // should still be in step 1
         assertEquals(1, powerGrid.step)
 
-        powerGrid = powerGrid.passConnectCity()
-                .passConnectCity()
+        powerGrid = powerGrid.dispatch(PassConnectCityAction())
+                .dispatch(PassConnectCityAction())
 
         // should be in step 2
         assertEquals(2, powerGrid.step)

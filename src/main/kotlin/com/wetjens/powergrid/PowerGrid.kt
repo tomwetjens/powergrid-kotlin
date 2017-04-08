@@ -71,48 +71,6 @@ data class PowerGrid constructor(
     }
 
     /**
-     * Starts a new auction for the current player that is up for auction (if no auction is already in progress), for a given power plant with an initial bid.
-     *
-     * @param initialBid Must be equal to or greather than the cost of the chosen power plant.
-     * @param replaces If player reached max number of power plants that can be owned, this power plant must be replaced with the new power plant.
-     */
-    fun startAuction(powerPlant: PowerPlant, initialBid: Int, replaces: PowerPlant? = null): PowerGrid {
-        return inPhase<AuctionPhase>().startAuction(this, powerPlant, initialBid, replaces)
-    }
-
-    fun passAuction(): PowerGrid {
-        return inPhase<AuctionPhase>().passAuction(this)
-    }
-
-    fun raise(bid: Int, replaces: PowerPlant? = null): PowerGrid {
-        return inPhase<AuctionPhase>().raise(this, bid, replaces)
-    }
-
-    fun passBid(): PowerGrid {
-        return inPhase<AuctionPhase>().passBid(this)
-    }
-
-    fun buyResources(type: ResourceType, amount: Int): PowerGrid {
-        return inPhase<BuyResourcesPhase>().buy(this, type, amount)
-    }
-
-    fun passBuyResources(): PowerGrid {
-        return inPhase<BuyResourcesPhase>().pass(this)
-    }
-
-    fun connectCity(city: City): PowerGrid {
-        return inPhase<BuildPhase>().connectCity(this, city)
-    }
-
-    fun passConnectCity(): PowerGrid {
-        return inPhase<BuildPhase>().passConnectCity(this)
-    }
-
-    fun producePower(powerPlants: Set<PowerPlant>, resources: Map<ResourceType, Int>): PowerGrid {
-        return inPhase<BureaucracyPhase>().producePower(this, powerPlants, resources)
-    }
-
-    /**
      * Redetermines the player order where the first player is the player that has the highest number of cities connected,
      * then the player that has the highest power plant.
      */
@@ -133,8 +91,16 @@ data class PowerGrid constructor(
         return cityStates.values.filter { cityState -> cityState.connectedBy.contains(player) }.size
     }
 
-    private inline fun <reified T : Phase> inPhase(): T {
-        return phase as? T ?: throw IllegalStateException("unexpected phase $phase")
+    inline fun <reified T : Phase> applyWithPhase(body: (T) -> PowerGrid): PowerGrid {
+        if (phase is T) {
+            return body(phase)
+        } else {
+            throw IllegalStateException("unexpected phase $phase")
+        }
+    }
+
+    fun dispatch(action: Action): PowerGrid {
+        return action.apply(this)
     }
 
 }

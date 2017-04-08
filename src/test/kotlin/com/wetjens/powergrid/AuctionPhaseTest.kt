@@ -39,7 +39,7 @@ class AuctionPhaseTest {
 
         val powerPlant = powerGrid.powerPlantMarket.future[0]
         try {
-            powerGrid.startAuction(powerPlant, 5)
+            powerGrid.dispatch(StartAuctionAction(powerPlant, 5))
         } catch (e: IllegalArgumentException) {
             assertEquals("$powerPlant not in actual", e.message)
             throw e
@@ -54,7 +54,7 @@ class AuctionPhaseTest {
         val powerGrid = PowerGrid(random = random, players = players, map = map)
 
         try {
-            powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 2)
+            powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 2))
         } catch (e: IllegalArgumentException) {
             assertEquals("bid must be >= 3", e.message)
             throw e
@@ -69,7 +69,7 @@ class AuctionPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         val powerPlant3 = powerGrid.powerPlantMarket.actual[0]
-        powerGrid = powerGrid.startAuction(powerPlant3, 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerPlant3, 3))
 
         assertEquals(listOf(4, 5, 6, 7), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
         assertEquals(listOf(8, 9, 10, 13), powerGrid.powerPlantMarket.future.map(PowerPlant::cost))
@@ -91,37 +91,37 @@ class AuctionPhaseTest {
         assertEquals(player3, powerGrid.currentPlayer)
 
         val powerPlant3 = powerGrid.powerPlantMarket.actual[0]
-        powerGrid = powerGrid.startAuction(powerPlant3, 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerPlant3, 3))
 
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.raise(4)
+        powerGrid = powerGrid.dispatch(RaiseAction(4))
 
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.raise(5)
+        powerGrid = powerGrid.dispatch(RaiseAction(5))
 
         assertEquals(player3, powerGrid.currentPlayer)
-        powerGrid = powerGrid.raise(6)
+        powerGrid = powerGrid.dispatch(RaiseAction(6))
 
         assertEquals(player1, powerGrid.currentPlayer)
         // player3 buys it
-        powerGrid = powerGrid.passBid().passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction()).dispatch(PassBidAction())
         assertEquals(44, powerGrid.playerStates[player3]!!.balance)
         assertEquals(listOf(powerPlant3), powerGrid.playerStates[player3]!!.powerPlants)
 
         // then second best player is up
         val powerPlant4 = powerGrid.powerPlantMarket.actual[0]
-        powerGrid = powerGrid.startAuction(powerPlant4, 4)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerPlant4, 4))
 
         assertEquals(player1, powerGrid.currentPlayer)
         // player2 buys it
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction())
         assertEquals(46, powerGrid.playerStates[player2]!!.balance)
         assertEquals(listOf(powerPlant4), powerGrid.playerStates[player2]!!.powerPlants)
 
         // then last player
         assertEquals(player1, powerGrid.currentPlayer)
         val powerPlant5 = powerGrid.powerPlantMarket.actual[0]
-        powerGrid = powerGrid.startAuction(powerPlant5, 5)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerPlant5, 5))
         assertEquals(45, powerGrid.playerStates[player1]!!.balance)
         assertEquals(listOf(powerPlant5), powerGrid.playerStates[player1]!!.powerPlants)
     }
@@ -131,7 +131,7 @@ class AuctionPhaseTest {
         val powerGrid = PowerGrid(random = random, players = players, map = map)
 
         try {
-            powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 51)
+            powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 51))
         } catch (e: IllegalArgumentException) {
             assertEquals("balance too low", e.message)
             throw e
@@ -142,10 +142,10 @@ class AuctionPhaseTest {
     fun auctionCannotBidIfBalanceTooLow() {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
 
         try {
-            powerGrid.raise(51)
+            powerGrid.dispatch(RaiseAction(51))
         } catch (e: IllegalArgumentException) {
             assertEquals("balance too low", e.message)
             throw e
@@ -160,31 +160,31 @@ class AuctionPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map)
 
         assertEquals(player3, powerGrid.currentPlayer)
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
 
         assertTrue((powerGrid.phase as AuctionPhase).auctionInProgress)
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction())
 
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction())
 
         // player3 has bought it
 
         // start new auction
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 4)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 4))
 
         // then player3 should not be bidding anymore
 
         assertTrue((powerGrid.phase as AuctionPhase).auctionInProgress)
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction())
 
         assertFalse((powerGrid.phase as AuctionPhase).auctionInProgress)
         assertEquals(player1, powerGrid.currentPlayer)
 
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 5)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 5))
         assertTrue(powerGrid.phase is BuyResourcesPhase)
     }
 
@@ -197,22 +197,22 @@ class AuctionPhaseTest {
 
         assertEquals(player3, powerGrid.currentPlayer)
         try {
-            powerGrid.passAuction()
+            powerGrid.dispatch(PassAuctionAction())
             fail("should not be allowed to pass in first round")
         } catch (e: IllegalStateException) {
             assertEquals("cannot pass in first round", e.message)
         }
 
         // buy something and move auction to next player
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-        powerGrid = powerGrid.passBid()
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+        powerGrid = powerGrid.dispatch(PassBidAction())
+        powerGrid = powerGrid.dispatch(PassBidAction())
 
         // next player should also not be allowed to pass
 
         assertEquals(player2, powerGrid.currentPlayer)
         try {
-            powerGrid.passAuction()
+            powerGrid.dispatch(PassAuctionAction())
             fail("should not be allowed to pass in first round")
         } catch (e: IllegalStateException) {
             assertEquals("cannot pass in first round", e.message)
@@ -228,17 +228,17 @@ class AuctionPhaseTest {
         var powerGrid = PowerGrid(random = random, players = players, map = map).copy(round = 2)
 
         assertEquals(player3, powerGrid.currentPlayer)
-        powerGrid = powerGrid.passAuction()
+        powerGrid = powerGrid.dispatch(PassAuctionAction())
 
         // start new auction
         assertEquals(player2, powerGrid.currentPlayer)
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
 
         // then player3 should not be allowed bidding
 
         assertTrue((powerGrid.phase as AuctionPhase).auctionInProgress)
         assertEquals(player1, powerGrid.currentPlayer)
-        powerGrid = powerGrid.passBid()
+        powerGrid = powerGrid.dispatch(PassBidAction())
 
         assertFalse((powerGrid.phase as AuctionPhase).auctionInProgress)
         assertEquals(player1, powerGrid.currentPlayer)
@@ -250,17 +250,17 @@ class AuctionPhaseTest {
 
         assertEquals(player3, powerGrid.currentPlayer)
         // leading player buys
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
 
         // then second best player should be able to pick
         assertTrue(powerGrid.phase is AuctionPhase)
         assertEquals(player2, powerGrid.currentPlayer)
 
         // second best player buys
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 4)
-                .passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 4))
+                .dispatch(PassBidAction())
 
         // then last player should be able to pick
         assertTrue(powerGrid.phase is AuctionPhase)
@@ -273,18 +273,18 @@ class AuctionPhaseTest {
 
         assertEquals(player3, powerGrid.currentPlayer)
         // other player buys it
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .raise(4)
-                .passBid()
-                .passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(RaiseAction(4))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
 
         // then player should again pick
         assertTrue(powerGrid.phase is AuctionPhase)
         assertEquals(player3, powerGrid.currentPlayer)
 
         // now buys it
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 4)
-                .passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 4))
+                .dispatch(PassBidAction())
 
         // then last player should be able to pick
         assertTrue(powerGrid.phase is AuctionPhase)
@@ -301,12 +301,12 @@ class AuctionPhaseTest {
 
         assertEquals(listOf(player3, player2, player1), powerGrid.playerOrder)
 
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
-                .passBid()
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[1], 4)
-                .passBid()
-                .startAuction(powerGrid.powerPlantMarket.actual[2], 5)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[1], 4))
+                .dispatch(PassBidAction())
+                .dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[2], 5))
 
         assertEquals(listOf(player1, player2, player3), powerGrid.playerOrder)
 
@@ -332,7 +332,7 @@ class AuctionPhaseTest {
 
         // then he must indicate one that must be replaced
         try {
-            powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+            powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
             fail("must replace a power plant")
         } catch (e: IllegalArgumentException) {
             // expected
@@ -340,9 +340,9 @@ class AuctionPhaseTest {
         }
 
         // indicate that first should be replaced
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3, powerGrid.playerStates[player3]!!.powerPlants[0])
-                .passBid()
-                .passBid()
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3, powerGrid.playerStates[player3]!!.powerPlants[0]))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
 
         assertEquals(listOf(3, 27, 28), powerGrid.playerStates[player3]!!.powerPlants.map(PowerPlant::cost))
     }
@@ -362,13 +362,13 @@ class AuctionPhaseTest {
                 Pair(player3, PlayerState(powerPlants = emptyList()))
         ))
 
-        powerGrid = powerGrid.startAuction(powerGrid.powerPlantMarket.actual[0], 3)
+        powerGrid = powerGrid.dispatch(StartAuctionAction(powerGrid.powerPlantMarket.actual[0], 3))
 
         assertEquals(player1, powerGrid.currentPlayer)
 
         // then he must indicate one that must be replaced
         try {
-            powerGrid.raise(4)
+            powerGrid.dispatch(RaiseAction(4))
             fail("must replace a power plant")
         } catch (e: IllegalArgumentException) {
             // expected
@@ -376,9 +376,9 @@ class AuctionPhaseTest {
         }
 
         // indicate that first should be replaced
-        powerGrid = powerGrid.raise(4, powerGrid.playerStates[player1]!!.powerPlants[0])
-                .passBid()
-                .passBid()
+        powerGrid = powerGrid.dispatch(RaiseAction(4, powerGrid.playerStates[player1]!!.powerPlants[0]))
+                .dispatch(PassBidAction())
+                .dispatch(PassBidAction())
 
         assertEquals(listOf(3, 27, 28), powerGrid.playerStates[player1]!!.powerPlants.map(PowerPlant::cost))
     }
@@ -394,9 +394,9 @@ class AuctionPhaseTest {
 
         // when all players pass auction
         powerGrid = powerGrid
-                .passAuction()
-                .passAuction()
-                .passAuction()
+                .dispatch(PassAuctionAction())
+                .dispatch(PassAuctionAction())
+                .dispatch(PassAuctionAction())
 
         // then lowest power plant must be removed from market
         assertEquals(listOf(4, 5, 6, 7), powerGrid.powerPlantMarket.actual.map(PowerPlant::cost))
