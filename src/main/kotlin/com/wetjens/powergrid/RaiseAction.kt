@@ -10,12 +10,13 @@ data class RaiseAction(val bid: Int,
 
     override fun apply(powerGrid: PowerGrid): PowerGrid {
         return powerGrid.applyWithPhase<AuctionPhase> { auctionPhase ->
-            checkBid(powerGrid, auctionPhase.auction.currentBiddingPlayer, bid, replaces)
+            val auction = auctionPhase.currentAuction!!
+            checkBid(powerGrid, auction.currentBiddingPlayer, bid, replaces)
 
-            bid > auctionPhase.auction.currentBid || throw IllegalArgumentException("bid too low")
+            bid > auction.currentBid || throw IllegalArgumentException("bid too low")
 
-            val newAuction = auctionPhase.auction.copy(
-                    currentBiddingPlayer = auctionPhase.auction.nextBiddingPlayer,
+            val newAuction = auction.copy(
+                    currentBiddingPlayer = auction.nextBiddingPlayer,
                     currentBid = bid,
                     replaces = replaces)
 

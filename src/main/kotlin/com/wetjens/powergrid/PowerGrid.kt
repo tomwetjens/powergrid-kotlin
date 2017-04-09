@@ -1,5 +1,7 @@
 package com.wetjens.powergrid
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.wetjens.collections.shuffle
 import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.NetworkMap
@@ -9,6 +11,7 @@ import java.util.*
 import kotlin.comparisons.compareBy
 
 data class PowerGrid constructor(
+        @JsonIgnore
         val map: NetworkMap,
         val cityStates: Map<City, CityState> = map.cities.associate { city -> Pair(city, CityState()) },
         val step: Int = 1,

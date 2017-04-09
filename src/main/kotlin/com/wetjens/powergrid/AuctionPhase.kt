@@ -19,10 +19,7 @@ data class AuctionPhase(val biddingOrder: List<Player>,
                         val currentAuction: Auction? = null) : Phase {
 
     override val currentPlayer: Player
-        get() = when (auctionInProgress) {
-            true -> auction.currentBiddingPlayer
-            else -> currentAuctioningPlayer
-        }
+        get() = currentAuction?.currentBiddingPlayer ?: currentAuctioningPlayer
 
     val nextAuctioningPlayer: Player by lazy {
         val nextIndex = (auctioningPlayers.indexOf(currentAuctioningPlayer) + 1) % auctioningPlayers.size
@@ -32,10 +29,6 @@ data class AuctionPhase(val biddingOrder: List<Player>,
     val completed: Boolean = auctioningPlayers.isEmpty()
 
     val auctionInProgress: Boolean = currentAuction != null
-
-    val auction: Auction by lazy {
-        currentAuction ?: throw IllegalStateException("no auction in progress")
-    }
 
     /**
      * Auction that is held during the auction phase for a power plant.

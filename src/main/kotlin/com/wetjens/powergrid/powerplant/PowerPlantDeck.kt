@@ -1,5 +1,6 @@
 package com.wetjens.powergrid.powerplant
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wetjens.powergrid.resource.ResourceType
 import com.wetjens.collections.shuffle
 import java.util.*
@@ -11,6 +12,7 @@ data class PowerPlantDeck private constructor(
         /**
          * Set of power plants that the deck is based on.
          */
+        @JsonIgnore
         val powerPlants: SortedMap<Int, PowerPlant>,
 
         private val random: Random,
@@ -96,6 +98,7 @@ data class PowerPlantDeck private constructor(
      * Power plant that is on top and can be drawn.
      */
     val onTop: PowerPlant?
+        @JsonIgnore
         get() = deck.firstOrNull()
 
     /**

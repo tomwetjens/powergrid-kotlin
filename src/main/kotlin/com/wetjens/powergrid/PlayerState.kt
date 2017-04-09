@@ -1,5 +1,6 @@
 package com.wetjens.powergrid
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wetjens.collections.combinations
 import com.wetjens.powergrid.powerplant.PowerPlant
 import com.wetjens.powergrid.powerplant.enoughResources
@@ -24,11 +25,13 @@ data class PlayerState(val balance: Int = 50,
         return copy(powerPlants = newPowerPlants)
     }
 
+    @JsonIgnore
     val highestPowerPlant: PowerPlant? = powerPlants.lastOrNull()
 
     /**
      * Amount of resources that could be stored theoretically on all the power plants combined.
      */
+    @get:JsonIgnore
     val storageCapacity: Map<ResourceType, Int> by lazy {
         ResourceType.values().associate { type ->
             Pair(type, powerPlants.filter { powerPlant -> powerPlant.consumes.contains(type) }
@@ -39,6 +42,7 @@ data class PlayerState(val balance: Int = 50,
     /**
      * Amount of resources that could be added to the storage theoretically on all power plants combined.
      */
+    @get:JsonIgnore
     val storageAvailable: Map<ResourceType, Int> by lazy {
         ResourceType.values().associate { type ->
             Pair(type, powerPlantsByResourceType[type]?.fold(0, { available, powerPlant ->
@@ -112,6 +116,7 @@ data class PlayerState(val balance: Int = 50,
     /**
      * Number of cities that, given the power plants and resources, this player can supply power to.
      */
+    @get:JsonIgnore
     val numberOfCitiesCanSupply: Int by lazy {
         powerPlants
                 .combinations()

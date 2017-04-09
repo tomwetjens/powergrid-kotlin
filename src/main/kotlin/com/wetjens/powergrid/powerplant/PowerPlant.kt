@@ -10,6 +10,6 @@ data class PowerPlant(
         val powers: Int) {
 
     override fun toString(): String {
-        return "($cost) ${requires}x$consumes=$powers"
+        return "$cost"
     }
 }

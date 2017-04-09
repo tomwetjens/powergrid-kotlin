@@ -7,30 +7,32 @@ class PassBidAction : AuctionAction {
 
     override fun apply(powerGrid: PowerGrid): PowerGrid {
         return powerGrid.applyWithPhase<AuctionPhase> { auctionPhase ->
-            auctionPhase.auction.biddingPlayers.size > 1 || throw IllegalStateException("no other players bidding anymore")
+            val auction = auctionPhase.currentAuction!!
 
-            val newAuction = auctionPhase.auction.copy(
-                    biddingPlayers = auctionPhase.auction.biddingPlayers - auctionPhase.auction.currentBiddingPlayer,
-                    currentBiddingPlayer = auctionPhase.auction.nextBiddingPlayer)
+            auction.biddingPlayers.size > 1 || throw IllegalStateException("no other players bidding anymore")
+
+            val newAuction = auction.copy(
+                    biddingPlayers = auction.biddingPlayers - auction.currentBiddingPlayer,
+                    currentBiddingPlayer = auction.nextBiddingPlayer)
 
             val newAuctionPhase = when (newAuction.closed) {
-                true -> auctionPhase.copy(auctioningPlayers = auctionPhase.auctioningPlayers - auctionPhase.auction.nextBiddingPlayer,
-                        currentAuctioningPlayer = when (auctionPhase.auction.nextBiddingPlayer) {
+                true -> auctionPhase.copy(auctioningPlayers = auctionPhase.auctioningPlayers - auction.nextBiddingPlayer,
+                        currentAuctioningPlayer = when (auction.nextBiddingPlayer) {
                             auctionPhase.currentAuctioningPlayer -> auctionPhase.nextAuctioningPlayer
                             else -> auctionPhase.currentAuctioningPlayer
                         },
-                        closedAuctions = auctionPhase.closedAuctions + auctionPhase.auction,
+                        closedAuctions = auctionPhase.closedAuctions + auction,
                         currentAuction = null)
                 else -> auctionPhase.copy(currentAuction = newAuction)
             }
 
             var newPlayerStates = powerGrid.playerStates
 
-            if (auctionPhase.auction.biddingPlayers.size == 2) {
+            if (auction.biddingPlayers.size == 2) {
                 // last player folded
 
-                val winningPlayer = auctionPhase.auction.nextBiddingPlayer
-                newPlayerStates = completePowerPlantPurchase(powerGrid, winningPlayer, auctionPhase.auction.powerPlant, auctionPhase.auction.currentBid, auctionPhase.auction.replaces)
+                val winningPlayer = auction.nextBiddingPlayer
+                newPlayerStates = completePowerPlantPurchase(powerGrid, winningPlayer, auction.powerPlant, auction.currentBid, auction.replaces)
             }
 
             return when (newAuctionPhase.completed) {
