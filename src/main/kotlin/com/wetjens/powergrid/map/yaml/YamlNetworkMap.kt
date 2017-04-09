@@ -1,5 +1,6 @@
 package com.wetjens.powergrid.map.yaml
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wetjens.powergrid.map.NetworkMap
 import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
@@ -11,8 +12,11 @@ class YamlNetworkMap : NetworkMap {
 
     // Need to be var because deserialized from YAML
     override var areas: Set<YamlArea> = mutableSetOf()
+
+    @get:JsonIgnore
     override var cities: Set<YamlCity> = mutableSetOf()
 
+    @get:JsonIgnore
     var connections: List<YamlConnection> = mutableListOf()
 
     companion object Factory {

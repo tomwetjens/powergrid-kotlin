@@ -1,6 +1,9 @@
 package com.wetjens.powergrid.map.yaml
 
-import com.wetjens.powergrid.map.City
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.wetjens.powergrid.map.Connection
 
 class YamlConnection() : Connection {
@@ -10,8 +13,12 @@ class YamlConnection() : Connection {
     }
 
     // Need to be var because deserialized from YAML
+    @get:JsonIgnore
     override var from: YamlCity = Constants.emptyCity
+
+    @get:JsonIgnoreProperties("connections")
     override var to: YamlCity = Constants.emptyCity
+
     override var cost: Int = 0
 
     constructor(from: YamlCity, to: YamlCity, cost: Int) : this() {
@@ -20,6 +27,7 @@ class YamlConnection() : Connection {
         this.cost = cost
     }
 
+    @get:JsonIgnore
     val inverse: YamlConnection by lazy {
         YamlConnection(from = to, to = from, cost = cost)
     }

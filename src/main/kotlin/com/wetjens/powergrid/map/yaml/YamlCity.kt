@@ -1,5 +1,6 @@
 package com.wetjens.powergrid.map.yaml
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wetjens.powergrid.map.City
 
 class YamlCity : City {
@@ -10,7 +11,10 @@ class YamlCity : City {
 
     // Need to be var because deserialized from YAML
     override var name: String = ""
+
+    @get:JsonIgnore
     override var area: YamlArea = Constants.emptyArea
+
     override var connections: MutableSet<YamlConnection> = mutableSetOf()
 
     override fun toString(): String {
