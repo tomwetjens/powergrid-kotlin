@@ -12,8 +12,7 @@ import com.wetjens.powergrid.powerplant.PowerPlant
  *
  * If a player passes to start an auction, he cannot participate in any subsequent auctions started by other players.
  */
-data class AuctionPhase(val biddingOrder: List<Player>,
-                        val auctioningPlayers: List<Player>,
+data class AuctionPhase(val auctioningPlayers: List<Player>,
                         val currentAuctioningPlayer: Player = auctioningPlayers.first(),
                         val closedAuctions: List<Auction> = emptyList(),
                         val currentAuction: Auction? = null) : Phase {
@@ -30,24 +29,4 @@ data class AuctionPhase(val biddingOrder: List<Player>,
 
     val auctionInProgress: Boolean = currentAuction != null
 
-    /**
-     * Auction that is held during the auction phase for a power plant.
-     */
-    data class Auction(val biddingPlayers: List<Player>,
-                       val currentBiddingPlayer: Player = biddingPlayers.first(),
-                       val powerPlant: PowerPlant,
-                       val replaces: PowerPlant?,
-                       val currentBid: Int) {
-
-        val nextBiddingPlayer: Player by lazy {
-            val nextIndex = (biddingPlayers.indexOf(currentBiddingPlayer) + 1) % biddingPlayers.size
-            biddingPlayers[nextIndex]
-        }
-
-        /**
-         * Returns whether the auction is still open for bidding, or it's closed and can take no more bids.
-         */
-        val closed: Boolean = biddingPlayers.size == 1
-
-    }
 }

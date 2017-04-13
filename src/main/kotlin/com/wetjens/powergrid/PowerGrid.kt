@@ -1,14 +1,12 @@
 package com.wetjens.powergrid
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.wetjens.collections.shuffle
 import com.wetjens.powergrid.map.City
 import com.wetjens.powergrid.map.NetworkMap
 import com.wetjens.powergrid.powerplant.PowerPlantMarket
 import com.wetjens.powergrid.resource.ResourceMarkets
 import java.util.*
-import kotlin.comparisons.compareBy
 
 data class PowerGrid constructor(
         @JsonIgnore
@@ -18,7 +16,7 @@ data class PowerGrid constructor(
         val round: Int = 1,
         val players: List<Player>,
         val playerOrder: List<Player>,
-        val phase: Phase = AuctionPhase(biddingOrder = players, auctioningPlayers = playerOrder),
+        val phase: Phase = AuctionPhase(auctioningPlayers = playerOrder),
         val playerStates: Map<Player, PlayerState> = players.associate { player -> Pair(player, PlayerState()) },
         val maxOwnedPowerPlants: Int = when (players.size) {
             2 -> 4

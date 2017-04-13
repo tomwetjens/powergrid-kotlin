@@ -24,11 +24,11 @@ data class StartAuctionAction(val powerPlant: PowerPlant,
 
             initialBid >= powerPlant.cost || throw IllegalArgumentException("bid must be >= ${powerPlant.cost}")
 
-            val biddingPlayers = auctionPhase.biddingOrder.filter({ player -> auctionPhase.auctioningPlayers.contains(player) })
+            val biddingPlayers = powerGrid.players.filter({ player -> auctionPhase.auctioningPlayers.contains(player) })
             // get next player clockwise from current auctioning player
             val biddingPlayer = biddingPlayers[(biddingPlayers.indexOf(auctionPhase.currentAuctioningPlayer) + 1) % biddingPlayers.size]
 
-            val newAuction = AuctionPhase.Auction(
+            val newAuction = Auction(
                     biddingPlayers = biddingPlayers,
                     currentBiddingPlayer = biddingPlayer,
                     powerPlant = powerPlant,
