@@ -1,16 +1,16 @@
 package com.wetjens.powergrid.map
 
 import com.wetjens.powergrid.map.yaml.YamlNetworkMap
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class RestrictedNetworkMapTest {
+object RestrictedNetworkMapSpec : Spek({
 
-    @Test
-    fun areas() {
-        val base = RestrictedNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+    it("should restrict areas") {
+        val base = RestrictedNetworkMapSpec::class.java.getResourceAsStream("/maps/germany.yaml")
                 .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
         val ne = base.areas.find { area -> area.name == "NE" }!!
@@ -33,9 +33,8 @@ class RestrictedNetworkMapTest {
         assertEquals(3, magdeburg.connections.size)
     }
 
-    @Test
-    fun areasUnreachable() {
-        val base = RestrictedNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+    it("should not allow unreachable areas") {
+        val base = RestrictedNetworkMapSpec::class.java.getResourceAsStream("/maps/germany.yaml")
                 .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
         val ne = base.areas.find { area -> area.name == "NE" }!!
@@ -49,9 +48,8 @@ class RestrictedNetworkMapTest {
         }
     }
 
-    @Test
-    fun areasUnreachableSplitClusters() {
-        val base = RestrictedNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+    it("should not allow unreachable area clusters") {
+        val base = RestrictedNetworkMapSpec::class.java.getResourceAsStream("/maps/germany.yaml")
                 .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
         val ne = base.areas.find { area -> area.name == "NE" }!!
@@ -68,4 +66,4 @@ class RestrictedNetworkMapTest {
         }
     }
 
-}
+})

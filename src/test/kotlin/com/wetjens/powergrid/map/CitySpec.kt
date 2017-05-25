@@ -1,10 +1,10 @@
 package com.wetjens.powergrid.map
 
-import org.junit.Test
-import kotlin.test.assertEquals
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import kotlin.test.assertTrue
 
-class CityTest {
+object CitySpec : Spek({
 
     class TestArea(override val name: String,
                    override val cities: MutableSet<City> = mutableSetOf()) : Area
@@ -54,7 +54,7 @@ class CityTest {
 
     val ed = TestConnection(e, d)
 
-    init {
+    it("should check if city is reachable") {
         a.connections.add(ab)
         a.connections.add(ac)
 
@@ -72,11 +72,8 @@ class CityTest {
 
         d.connections.add(de)
         e.connections.add(ed)
-    }
 
-    @Test
-    fun isReachable() {
         assertTrue(a.isReachable(e))
     }
 
-}
+})

@@ -1,12 +1,12 @@
 package com.wetjens.powergrid.resource
 
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import kotlin.test.assertEquals
 
-class ResourceMarketTest {
+object ResourceMarketSpec : Spek({
 
-    @Test
-    fun test() {
+    it("should calculate cost") {
         val resourceMarket = ResourceMarket.default() + 24
 
         assertEquals(24, resourceMarket.available)
@@ -19,8 +19,7 @@ class ResourceMarketTest {
         assertEquals(108, resourceMarket.calculateCost(24))
     }
 
-    @Test
-    fun calculateCost_Uranium() {
+    it("should calculate cost for uranium") {
         val resourceMarket = ResourceMarket.uranium() + 12
 
         assertEquals(1, resourceMarket.calculateCost(1))
@@ -31,8 +30,7 @@ class ResourceMarketTest {
         assertEquals(88, resourceMarket.calculateCost(12))
     }
 
-    @Test
-    fun remove() {
+    it("should remove amount from market") {
         var resourceMarket = ResourceMarket.default() + 24
 
         resourceMarket -= 1
@@ -56,8 +54,7 @@ class ResourceMarketTest {
         assertEquals(listOf(0, 0, 0, 0, 0, 0, 0, 0), resourceMarket.spaces.map(ResourceMarket.Space::available))
     }
 
-    @Test
-    fun remove_Uranium() {
+    it("should remove amount from market uranium") {
         var resourceMarket = ResourceMarket.uranium() + 12
 
         resourceMarket -= 1
@@ -77,4 +74,4 @@ class ResourceMarketTest {
         assertEquals(listOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), resourceMarket.spaces.map(ResourceMarket.Space::available))
     }
 
-}
+})

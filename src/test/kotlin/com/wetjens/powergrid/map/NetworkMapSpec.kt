@@ -1,13 +1,14 @@
 package com.wetjens.powergrid.map
 
 import com.wetjens.powergrid.map.yaml.YamlNetworkMap
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class NetworkMapTest {
+object NetworkMapSpec : Spek({
 
-    val map = RestrictedNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+    val map = RestrictedNetworkMapSpec::class.java.getResourceAsStream("/maps/germany.yaml")
             .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
     val flensburg = map.cities.find { city -> city.name == "Flensburg" }!!
@@ -15,14 +16,12 @@ class NetworkMapTest {
     val duisburg = map.cities.find { city -> city.name == "Duisburg" }!!
     val essen = map.cities.find { city -> city.name == "Essen" }!!
 
-    @Test
-    fun isReachable() {
+    it("should check if city is reachable from other city") {
         assertTrue(flensburg.isReachable(muenchen))
     }
 
-    @Test
-    fun shortestPath() {
+    it("should calculate shortest path between cities") {
         assertEquals(112, map.shortestPath(flensburg, muenchen).cost)
         assertEquals(0, map.shortestPath(duisburg, essen).cost)
     }
-}
+})

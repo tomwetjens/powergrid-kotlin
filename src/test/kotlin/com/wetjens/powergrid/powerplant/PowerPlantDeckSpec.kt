@@ -1,48 +1,42 @@
 package com.wetjens.powergrid.powerplant
 
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import java.util.*
 import kotlin.test.assertEquals
 
-class PowerPlantDeckTest {
+object PowerPlantDeckSpec : Spek({
 
-    val random: Random = Random(0)
-
-    @Test
-    fun initialDeck2Players() {
-        val deck = PowerPlantDeck(random, 2)
+    it("should initialize deck for 2 players") {
+        val deck = PowerPlantDeck(Random(0), 2)
 
         assertEquals(26, deck.remaining)
         assertEquals(13, deck.onTop!!.cost)
     }
 
-    @Test
-    fun initialDeck3Players() {
-        val deck = PowerPlantDeck(random, 3)
+    it("should initialize deck for 3 players") {
+        val deck = PowerPlantDeck(Random(0), 3)
 
         assertEquals(26, deck.remaining)
         assertEquals(13, deck.onTop?.cost)
     }
 
-    @Test
-    fun initialDeck4Players() {
-        val deck = PowerPlantDeck(random, 4)
+    it("should initialize deck for 4 players") {
+        val deck = PowerPlantDeck(Random(0), 4)
 
         assertEquals(30, deck.remaining)
         assertEquals(13, deck.onTop?.cost)
     }
 
-    @Test
-    fun initialDeck5Players() {
-        val deck = PowerPlantDeck(random, 5)
+    it("should initialize deck for 5 players") {
+        val deck = PowerPlantDeck(Random(0), 5)
 
         assertEquals(34, deck.remaining)
         assertEquals(13, deck.onTop?.cost)
     }
 
-    @Test
-    fun draw() {
-        var deck = PowerPlantDeck(random, 2)
+    it("should draw card from deck") {
+        var deck = PowerPlantDeck(Random(0), 2)
         assertEquals(13, deck.onTop?.cost)
 
         deck = -deck
@@ -63,9 +57,8 @@ class PowerPlantDeckTest {
         // etc.
     }
 
-    @Test
-    fun plus() {
-        var deck = PowerPlantDeck(random, 2)
+    it("should put card back under deck") {
+        var deck = PowerPlantDeck(Random(0), 2)
 
         assertEquals(26, deck.remaining)
         assertEquals(13, deck.onTop?.cost)
@@ -83,9 +76,9 @@ class PowerPlantDeckTest {
         assertEquals(20, deck.onTop?.cost)
 
         // check that it is put under the pile
-        (1..25).forEach { deck = -deck}
+        (1..25).forEach { deck = -deck }
         assertEquals(1, deck.remaining)
         assertEquals(powerPlant, deck.onTop!!)
     }
 
-}
+})

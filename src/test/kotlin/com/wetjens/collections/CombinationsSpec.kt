@@ -1,14 +1,12 @@
 package com.wetjens.collections
 
-import com.wetjens.collections.combinations
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
+import org.junit.Assert.assertEquals
 
-import org.junit.Assert.*
+object CombinationsSpec : Spek({
 
-class CombinationsTest {
-
-    @Test
-    fun combinations() {
+    it("should give unique set of combinations for a given set of numbers") {
         val set = setOf(1, 2, 3, 4)
 
         assertEquals(setOf(
@@ -32,8 +30,7 @@ class CombinationsTest {
         ), set.combinations(1, 4))
     }
 
-    @Test
-    fun combinations_Max() {
+    it("should give unique set of combinations between min and max size for a given set of numbers") {
         val set = setOf(1, 2, 3, 4)
 
         assertEquals(setOf(
@@ -56,9 +53,8 @@ class CombinationsTest {
         ), set.combinations(1, 3))
     }
 
-    @Test
-    fun combinations_Empty() {
+    it("should give empty set of combinations for a given empty set") {
         assertEquals(emptySet<Int>(), emptySet<Int>().combinations(1, 3))
     }
 
-}
+})

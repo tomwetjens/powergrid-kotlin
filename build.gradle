@@ -3,9 +3,10 @@ version '1.0.0-SNAPSHOT'
 
 buildscript {
     ext {
-        kotlinVersion = '1.1.1'
+        kotlinVersion = '1.1.2-2'
         springBootVersion = '2.0.0.BUILD-SNAPSHOT'
         yamlVersion = '1.17'
+        spekVersion = '1.1.2'
     }
 
     repositories {
@@ -20,7 +21,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
 
-        classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3")
+        classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.0-M4")
     }
 }
 
@@ -73,17 +74,18 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
 
     testCompile("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
-    testRuntime("org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}")
 
-    testRuntime('junit:junit:4.12')
-
-    testCompile('org.jetbrains.spek:spek-api:1.1.0') {
+    testCompile("org.jetbrains.spek:spek-api:${spekVersion}") {
         exclude group: 'org.jetbrains.kotlin'
     }
-    testRuntime('org.jetbrains.spek:spek-junit-platform-engine:1.1.0') {
+
+    testRuntime("org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}") {
         exclude group: 'org.junit.platform'
         exclude group: 'org.jetbrains.kotlin'
     }
+
+    // Workaround for running tests from IntelliJ IDEA (https://github.com/JetBrains/spek/issues/195)
+    testRuntime("org.junit.platform:junit-platform-launcher:1.0.0-M4")
 }
 
 

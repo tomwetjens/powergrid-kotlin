@@ -1,14 +1,14 @@
 package com.wetjens.powergrid.map.yaml
 
 import com.wetjens.powergrid.map.City
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import org.junit.Assert.assertEquals
-import org.junit.Test
 
-class YamlNetworkMapTest {
+object YamlNetworkMapSpec : Spek({
 
-    @Test
-    fun load() {
-        val map = YamlNetworkMapTest::class.java.getResourceAsStream("/maps/germany.yaml")
+    it("should load from yaml file") {
+        val map = YamlNetworkMapSpec::class.java.getResourceAsStream("/maps/germany.yaml")
                 .use { inputStream -> YamlNetworkMap.load(inputStream) }
 
         assertEquals(6, map.areas.size)
@@ -18,4 +18,4 @@ class YamlNetworkMapTest {
         assertEquals(162, map.cities.flatMap(City::connections).size)
     }
 
-}
+})

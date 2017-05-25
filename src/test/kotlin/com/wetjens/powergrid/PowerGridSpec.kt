@@ -60,8 +60,6 @@ object PowerGridSpec : Spek({
         }
 
         it("should start with initial resource markets") {
-            var powerGrid = PowerGrid(random = random, players = players, map = map)
-
             assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].capacity)
             assertEquals(24, powerGrid.resourceMarkets[ResourceType.COAL].available)
 

@@ -1,12 +1,12 @@
 package com.wetjens.powergrid.resource
 
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import kotlin.test.assertEquals
 
-class ResourceMarketsTest {
+object ResourceMarketsSpec : Spek({
 
-    @Test
-    fun test() {
+    it("should initialize markets for different resource types") {
         val resourceMarkets = ResourceMarkets()
 
         assertEquals(24, resourceMarkets[ResourceType.COAL].available)
@@ -15,4 +15,4 @@ class ResourceMarketsTest {
         assertEquals(2, resourceMarkets[ResourceType.URANIUM].available)
     }
 
-}
+})

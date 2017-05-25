@@ -1,24 +1,21 @@
 package com.wetjens.powergrid.powerplant
 
-import org.junit.Test
+import org.jetbrains.spek.api.Spek
+import org.jetbrains.spek.api.dsl.it
 import java.util.*
 import kotlin.test.assertEquals
 
-class PowerPlantMarketTest {
+object PowerPlantMarketSpec : Spek({
 
-    val random: Random = Random(0)
-
-    @Test
-    fun initialMarket() {
-        val market = PowerPlantMarket(random, 2)
+    it("should initialize power plant market") {
+        val market = PowerPlantMarket(Random(0), 2)
 
         assertEquals(listOf(3, 4, 5, 6), market.actual.map(PowerPlant::cost))
         assertEquals(listOf(7, 8, 9, 10), market.future.map(PowerPlant::cost))
     }
 
-    @Test
-    fun take() {
-        var market = PowerPlantMarket(random, 2)
+    it("should take power plant from market") {
+        var market = PowerPlantMarket(Random(0), 2)
 
         market -= market.actual[1]
         assertEquals(listOf(3, 5, 6, 7), market.actual.map(PowerPlant::cost))
@@ -64,9 +61,8 @@ class PowerPlantMarketTest {
         assertEquals(emptyList(), market.future.map(PowerPlant::cost))
     }
 
-    @Test
-    fun onlyActual() {
-        var market = PowerPlantMarket(random, 2)
+    it("should only have actual market") {
+        var market = PowerPlantMarket(Random(0), 2)
 
         assertEquals(listOf(3, 4, 5, 6), market.actual.map(PowerPlant::cost))
         assertEquals(listOf(7, 8, 9, 10), market.future.map(PowerPlant::cost))
@@ -83,9 +79,8 @@ class PowerPlantMarketTest {
         // etc.
     }
 
-    @Test
-    fun removeLowerOrEqual() {
-        var market = PowerPlantMarket(random, 2)
+    it("should remove power plant lower than or equal to") {
+        var market = PowerPlantMarket(Random(0), 2)
 
         assertEquals(listOf(3, 4, 5, 6), market.actual.map(PowerPlant::cost))
         assertEquals(listOf(7, 8, 9, 10), market.future.map(PowerPlant::cost))
@@ -101,4 +96,4 @@ class PowerPlantMarketTest {
         assertEquals(listOf(37, 39, 44, 96), market.future.map(PowerPlant::cost))
     }
 
-}
+})
