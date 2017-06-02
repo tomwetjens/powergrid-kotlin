@@ -1,0 +1,84 @@
+group 'com.wetjens.powergrid'
+version '1.0.0-SNAPSHOT'
+
+buildscript {
+    ext {
+        kotlinVersion = '1.1.2-2'
+        springBootVersion = '2.0.0.BUILD-SNAPSHOT'
+        spekVersion = '1.1.2'
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "http://dl.bintray.com/jetbrains/spek" }
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+
+        classpath("org.junit.platform:junit-platform-gradle-plugin:1.0.0-M4")
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+junitPlatform {
+    filters {
+        engines {
+            include 'spek'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+}
+
+sourceCompatibility = 1.8
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+dependencies {
+    compile project(':game')
+
+    compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
+    compile('org.springframework.boot:spring-boot-starter-webflux')
+    compile('org.springframework.boot:spring-boot-starter-websocket')
+
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
+    compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    testCompile("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
+
+    testCompile("org.jetbrains.spek:spek-api:${spekVersion}") {
+        exclude group: 'org.jetbrains.kotlin'
+    }
+
+    testRuntime("org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}") {
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.jetbrains.kotlin'
+    }
+
+    // Workaround for running tests from IntelliJ IDEA (https://github.com/JetBrains/spek/issues/195)
+    testRuntime("org.junit.platform:junit-platform-launcher:1.0.0-M4")
+}
+
+
