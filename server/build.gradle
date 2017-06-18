@@ -57,16 +57,25 @@ compileTestKotlin {
 dependencies {
     compile project(':game')
 
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
-    compile('org.springframework.boot:spring-boot-starter-webflux')
-    compile('org.springframework.boot:spring-boot-starter-websocket')
+    compile 'org.springframework.boot:spring-boot-devtools'
 
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
-    compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'org.springframework.security.oauth:spring-security-oauth2:2.1.1.RELEASE'
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity4:3.0.2.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web'
 
-    testCompile("org.jetbrains.kotlin:kotlin-test:${kotlinVersion}")
+    compile 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
+    compile 'org.springframework.boot:spring-boot-starter-websocket'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}"
+    compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+
+    testCompile "org.jetbrains.kotlin:kotlin-test:${kotlinVersion}"
 
     testCompile("org.jetbrains.spek:spek-api:${spekVersion}") {
         exclude group: 'org.jetbrains.kotlin'
