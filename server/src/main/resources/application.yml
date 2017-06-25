@@ -15,3 +15,8 @@ security:
       authorized-grant-types: authorization_code, password
       access-token-validity-seconds: 600
       refresh-token-validity-seconds: -1
+
+logging:
+  level:
+    root: ERROR
+    com.wetjens.powergrid.server: INFO
