@@ -1,6 +1,3 @@
-group 'com.wetjens.powergrid'
-version '1.0.0-SNAPSHOT'
-
 buildscript {
     ext {
         kotlinVersion = '1.1.2-2'
