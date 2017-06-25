@@ -1,13 +1,13 @@
-facebook:
-  client:
-    clientId: 659596220915072
-    clientSecret: 76b5d3a74f07039cf0574525ac4bda83
+spring:
+  social:
+    facebook:
+      appId: 659596220915072
+      appSecret: 76b5d3a74f07039cf0574525ac4bda83
+  thymeleaf:
+    cache: false
 
 logging:
   level:
+    root: ERROR
     org.springframework: ERROR
     com.wetjens.powergrid.server: DEBUG
-
-spring:
-  thymeleaf:
-    cache: false
