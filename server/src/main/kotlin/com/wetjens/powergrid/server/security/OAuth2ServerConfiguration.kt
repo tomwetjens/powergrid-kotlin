@@ -15,9 +15,9 @@ class OAuth2ServerConfiguration : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
                 .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/", "/signin/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatcher("/").authorizeRequests().anyRequest().permitAll()
+                .and()
+                .antMatcher("/signin/**").authorizeRequests().anyRequest().permitAll()
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {
