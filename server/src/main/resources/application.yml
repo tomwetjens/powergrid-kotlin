@@ -1,12 +1,17 @@
 spring:
   social:
     facebook:
-      appId: appId
-      appSecret: appSecret
+      app-id: changeit
+      app-secret: changeit
 
 security:
   oauth2:
     client:
-      clientId: powerline
-      clientSecret: powerlinesecret
-      auto-approve-scopes: '.*'
+      client-id: powerline
+      client-secret: powerlinesecret
+      scope: basic
+      auto-approve-scopes: basic
+      registered-redirect-uri: http://callback
+      authorized-grant-types: authorization_code, password
+      access-token-validity-seconds: 600
+      refresh-token-validity-seconds: -1
