@@ -5,5 +5,4 @@ import java.util.*
 
 data class User(
         @Id val id: UUID = UUID.randomUUID(),
-        val displayName: String) {
-}
+        val displayName: String)

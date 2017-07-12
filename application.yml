@@ -3,10 +3,3 @@ spring:
     facebook:
       app-id: 659596220915072
       app-secret: 76b5d3a74f07039cf0574525ac4bda83
-  thymeleaf:
-    cache: false
-
-logging:
-  level:
-    root: ERROR
-    com.wetjens.powergrid.server: DEBUG

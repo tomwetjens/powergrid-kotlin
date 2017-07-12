@@ -15,7 +15,7 @@ class OAuth2ResourceConfiguration : ResourceServerConfigurerAdapter() {
         // Because we are both resource and authorization server,
         // we must always define a specific matcher on which authorizeRequests() is called
         // else the resource server filter will also protect any authorization server endpoints
-        http.antMatcher("/user")
+        http.antMatcher("/api/**")
                 .authorizeRequests()
                 .anyRequest().authenticated()
     }

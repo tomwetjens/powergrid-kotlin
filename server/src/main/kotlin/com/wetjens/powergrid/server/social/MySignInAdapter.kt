@@ -1,6 +1,5 @@
 package com.wetjens.powergrid.server.social
 
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
@@ -15,7 +14,7 @@ class MySignInAdapter : SignInAdapter {
     override fun signIn(userId: String, connection: Connection<*>, request: NativeWebRequest): String? {
         val authentication = PreAuthenticatedAuthenticationToken(userId, connection, setOf(SimpleGrantedAuthority("ROLE_USER")))
 
-        SecurityContextHolder.getContext().authentication = authentication as Authentication?
+        SecurityContextHolder.getContext().authentication = authentication
 
         val redirectUri = RememberSignInRedirectUriFilter.getRedirectUri(request)
 

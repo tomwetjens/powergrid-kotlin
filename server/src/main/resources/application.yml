@@ -11,12 +11,6 @@ security:
       client-secret: powerlinesecret
       scope: basic
       auto-approve-scopes: basic
-      registered-redirect-uri: http://callback
-      authorized-grant-types: authorization_code, password
+      authorized-grant-types: authorization_code, password, refresh_token
       access-token-validity-seconds: 600
-      refresh-token-validity-seconds: -1
-
-logging:
-  level:
-    root: ERROR
-    com.wetjens.powergrid.server: INFO
+      refresh-token-validity-seconds: 2592000

@@ -13,7 +13,7 @@ class MyUsersConnectionRepository(
         return providerUserIds.mapNotNull { providerUserId ->
             val userConnection = userConnectionRepository.findByProviderIdAndProviderUserId(providerId, providerUserId)
 
-            if (userConnection != null) userConnection.userId.toString() else null
+            userConnection?.userId?.toString()
         }.toSet()
     }
 

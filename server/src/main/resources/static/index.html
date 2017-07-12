@@ -1,16 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en">
 <head>
     <meta charset="utf-8">
 </head>
 <body>
-
-<p sec:authorize="!isAuthenticated()">
 <form action="/signin/facebook?redirect_uri=/" method="post">
     <button type="submit">Login with Facebook</button>
 </form>
-</p>
-
+<a href="/oauth/authorize?client_id=powerline&response_type=code&redirect_uri=/&scope=basic">Get authorization code</a>
 </body>
 </html>

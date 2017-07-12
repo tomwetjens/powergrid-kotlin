@@ -1,0 +1,12 @@
+version: '2'
+services:
+  db:
+    ports:
+      - '27017:27017'
+  web:
+    build: .
+    ports:
+      - '8080:8080'
+    environment:
+      SPRING_SOCIAL_FACEBOOK_APPID: 659596220915072
+      SPRING_SOCIAL_FACEBOOK_APPSECRET: 76b5d3a74f07039cf0574525ac4bda83
