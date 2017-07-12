@@ -13,7 +13,7 @@ node {
     stage('Docker') {
         def tag = env.BRANCH_NAME == 'master' ? 'latest' : "${env.BRANCH_NAME}-${env.BUILD_ID}"
 
-        sh "docker build -t powerline:$tag"
+        sh "docker build -t powerline:$tag ."
         sh "docker tag powerline:$tag registry.swarm.wetjens.com/poweline:$tag ."
         sh "docker push registry.swarm.wetjens.com/powerline:$tag"
     }
