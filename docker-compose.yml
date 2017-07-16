@@ -17,3 +17,6 @@ services:
         traefik.frontend.rule: "Host:powerline.traefik.wetjens.com"
     depends_on:
       - db
+networks:
+  swarm_traefik:
+    external: true
